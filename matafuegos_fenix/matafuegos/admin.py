@@ -15,6 +15,7 @@ class MatafuegosAdmin(admin.ModelAdmin):
 
     search_fields= ('numero', 'numero_bv', 'numero_dps',)
     list_filter= ('marca',)
+    readonly_fields=['fecha_proxima_carga','fecha_proxima_ph']
 
 class TipoMatafuegosAdmin(admin.ModelAdmin):
     list_display = (

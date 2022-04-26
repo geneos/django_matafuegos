@@ -6,6 +6,7 @@ from django.db import models
 from cliente.models import Cliente
 
 
+
 class CategoriaMatafuegos(models.Model):
     nombre = models.CharField('Nombre', max_length=100)
 
@@ -51,9 +52,9 @@ class Matafuegos(models.Model):
     centro_costo = models.CharField('Centro de costo', max_length=100)
     fecha_fabricación = models.DateField()
     fecha_carga = models.DateField(default=datetime.date.today)
-    fecha_proxima_carga = models.DateField(editable=False, null=True, blank=True)
+    fecha_proxima_carga = models.DateField(null=True, blank=True)
     fecha_ph = models.DateField(default=datetime.date.today)
-    fecha_proxima_ph = models.DateField(editable=False, null=True, blank=True)
+    fecha_proxima_ph = models.DateField(null=True, blank=True)
 
     def calcularFecha(self, fecha, dias):
         return fecha + datetime.timedelta(days=dias)
