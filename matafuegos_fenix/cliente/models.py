@@ -22,5 +22,5 @@ class Cliente(models.Model):
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'a')
 
     def __str__(self):
-        return self.codigo
+        return str(self.codigo)
 
