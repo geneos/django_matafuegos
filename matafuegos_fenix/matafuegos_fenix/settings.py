@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cliente',
     'matafuegos',
-    'orden_trabajo'
+    'orden_trabajo',
+    'parametros'
 ]
 
 MIDDLEWARE = [
