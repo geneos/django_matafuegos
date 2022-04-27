@@ -66,3 +66,6 @@ class Matafuegos(models.Model):
 
     class Meta:
         verbose_name_plural = "Matafuegos"
+
+    def __str__(self):
+        return str(self.numero)

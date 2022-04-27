@@ -4,6 +4,7 @@ from django.db import models
 
 from cliente.models import Cliente
 
+from matafuegos.models import Matafuegos
 
 
 class Tarea(models.Model):
@@ -25,12 +26,12 @@ class Ordenes_de_trabajo(models.Model):
     numero = models.IntegerField("Numero", default=0)
     fecha = models.DateField("Fecha de realización",default= date.today)
     fecha_entrega= models.DateField("Fecha de entrega estimada", default= date.today)
-    fecha_cierre= models.DateField("Fecha de cierre", blank= True, default= date.today)
+    fecha_cierre= models.DateField("Fecha de cierre", blank= True, null=True)
     notas = models.CharField('notas', max_length=80, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'p')
-    monto_total = models.FloatField('monto', default=0, editable=False)
-    #matafuego
+    monto_total = models.FloatField('monto', default=0)
+    matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE)
 
     def calcular_monto(self):
         monto=0
