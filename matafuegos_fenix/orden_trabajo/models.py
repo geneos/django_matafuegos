@@ -35,7 +35,9 @@ class Ordenes_de_trabajo(models.Model):
 
     def calcular_monto(self):
         monto=0
-        for p in Tarea_Orden.objects.filter(orden=self.numero).values_list('tarea'):
+        print("Calculando montos")
+        for p in Tarea_Orden.objects.filter(orden=self).values_list('tarea'):
+            print("Entra a tarea")
             monto+= Tarea.objects.filter(id=p[0]).values_list('precio')[0][0]
         return monto
 
@@ -59,4 +61,4 @@ class Tarea_Orden(models.Model):
         self.orden.save()
 
     class Meta:
-        verbose_name_plural = "Tarea - Orden de trabajo"
+        verbose_name_plural = "Tareas a realizar"

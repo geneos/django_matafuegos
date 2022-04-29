@@ -12,7 +12,7 @@ class Cliente(models.Model):
     ]
 
     codigo = models.IntegerField("Codigo")
-    cuit_cuil = models.IntegerField('CUIT/CUIL')
+    cuit_cuil = models.CharField('CUIT/CUIL', max_length=11)
     nombre = models.CharField('Nombre/ Razón Social', max_length=80)
     direccion = models.CharField('Dirección', max_length=80)
     telefono = models.CharField('Telefono', max_length=100)

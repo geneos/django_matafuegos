@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'cliente',
     'matafuegos',
     'orden_trabajo',
-    'parametros'
+    'parametros',
+    'import_export',
 ]
 
 MIDDLEWARE = [

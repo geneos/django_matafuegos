@@ -1,9 +1,17 @@
 from django.contrib import admin
 
 # Register your models here.
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+
 from .models import CategoriaMatafuegos, TipoMatafuegos, MarcaMatafuegos, Matafuegos
 
-class MatafuegosAdmin(admin.ModelAdmin):
+class MatafuegosResource(resources.ModelResource):
+
+    class Meta:
+        model = Matafuegos
+
+class MatafuegosAdmin(ImportExportModelAdmin):
 
     list_display = (
         'numero',
@@ -16,6 +24,7 @@ class MatafuegosAdmin(admin.ModelAdmin):
     search_fields= ('numero', 'numero_bv', 'numero_dps',)
     list_filter= ('marca',)
     readonly_fields=['fecha_proxima_carga','fecha_proxima_ph']
+    resource_class = MatafuegosResource
 
 class TipoMatafuegosAdmin(admin.ModelAdmin):
     list_display = (
