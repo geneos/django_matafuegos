@@ -15,10 +15,15 @@ class TareaAdmin(admin.ModelAdmin):
 class TareaTabularInline(admin.TabularInline):
     model = Tarea_Orden
     can_delete = True
+    readonly_fields = ('tarea',)
+    fields = ('tarea',)
+
 
 @admin.action(description='Iniciar orden de trabajo')
 def action_iniciada(modeladmin, request, queryset):
     queryset.update(estado='ep')
+    queryset.update(fecha_inicio=date.today())
+    queryset.update(fecha_cierre=None)
 
 @admin.action(description='Finalizar orden de trabajo')
 def action_finalizada(modeladmin, request, queryset):
@@ -31,18 +36,18 @@ def action_cancelada(modeladmin, request, queryset):
 
 class OrdenTrabajoAdmin(admin.ModelAdmin):
     list_display = (
-        'numero',
-        'fecha',
+        'id',
+        'fecha_inicio',
         'fecha_entrega',
         'cliente',
         'matafuegos',
         'estado',
         'monto_total'
     )
-    search_fields = ('numero', 'cliente__codigo', 'fecha',)
+    search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
     list_filter= ('estado',)
     inlines = [TareaTabularInline]
-    readonly_fields = ['monto_total']
+    readonly_fields = ['fecha_creacion', 'fecha_inicio','fecha_cierre', 'monto_total',]
     actions = [action_iniciada, action_finalizada]
 
 class TareaOrdenAdmin(admin.ModelAdmin):
@@ -50,8 +55,6 @@ class TareaOrdenAdmin(admin.ModelAdmin):
         'tarea',
         'orden'
     )
-
-
 
 admin.site.register(Ordenes_de_trabajo, OrdenTrabajoAdmin)
 admin.site.register(Tarea, TareaAdmin)

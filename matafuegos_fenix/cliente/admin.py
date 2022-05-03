@@ -21,12 +21,12 @@ def make_activo(modeladmin, request, queryset):
 class OrdenTrabajoTabularInline(admin.TabularInline):
     model = Ordenes_de_trabajo
     can_delete = False
-    readonly_fields =  ('numero','fecha','fecha_entrega','fecha_cierre','cliente','estado','monto_total',)
-    fields = ('numero','fecha','fecha_entrega','fecha_cierre','cliente','estado','monto_total',)
+    readonly_fields =  ('fecha_creacion','fecha_inicio','fecha_entrega','fecha_cierre','cliente','estado','monto_total',)
+    fields = ('fecha_creacion','fecha_inicio','fecha_entrega','fecha_cierre','cliente','estado','monto_total',)
     def has_add_permission(self, request, obj=None):
         return False
 
-class MatafuegoabularInline(admin.TabularInline):
+class MatafuegoTabularInline(admin.TabularInline):
     model = Matafuegos
     can_delete = False
     readonly_fields = ('numero', 'numero_dps', 'direccion', 'categoria', 'tipo',)
@@ -47,6 +47,6 @@ class CLienteAdmin(admin.ModelAdmin):
     search_fields= ('codigo', 'nombre', 'cuit_cuil',)
     list_filter= ('estado', 'tipo',)
     actions = [make_inactivo, make_activo]
-    inlines = [OrdenTrabajoTabularInline, MatafuegoabularInline]
+    inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]
 
 admin.site.register(Cliente, CLienteAdmin)
