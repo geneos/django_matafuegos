@@ -26,4 +26,4 @@ class Cliente(models.Model):
         return reverse('cliente-detalle', args=[str(self.id)])
 
     def __str__(self):
-        return str(self.codigo)
+        return str(self.nombre+" - "+str(self.codigo))
