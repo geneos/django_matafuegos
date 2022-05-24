@@ -1,6 +1,7 @@
 import os
 from datetime import date
 from io import BytesIO
+<<<<<<< Updated upstream
 from django.contrib import admin, messages
 from django.http import FileResponse
 from reportlab.lib.colors import HexColor
@@ -8,6 +9,15 @@ from reportlab.pdfgen import canvas
 
 from .forms import OrdenForm
 from .models import Tarea, Ordenes_de_trabajo, TareaOrden
+=======
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
+from django.contrib import admin, messages
+# Register your models here.
+from .forms import OrdenTrabajoForm
+from .models import Tarea, Ordenes_de_trabajo, TareaOrden, Matafuegos
+from parametros.models import Parametros
+>>>>>>> Stashed changes
 
 
 class TareaAdmin(admin.ModelAdmin):
@@ -18,8 +28,23 @@ class TareaAdmin(admin.ModelAdmin):
 
 class TareaTabularInline(admin.TabularInline):
     model = TareaOrden
+<<<<<<< Updated upstream
     can_delete = True
     fields = ('tarea', 'precioAj')
+=======
+    can_delete = True
+    fields = ('tarea',)
+
+class TareaFinalizadaTabularInline(admin.TabularInline):
+    model = TareaOrden
+    can_delete = True
+    fields = ('tarea',)
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+>>>>>>> Stashed changes
 
 #ACCIONES
 @admin.action(description='Iniciar orden de trabajo')
@@ -27,6 +52,58 @@ def action_iniciada(modeladmin, request, queryset):
     queryset.update(estado='ep')
     queryset.update(fecha_inicio=date.today())
     queryset.update(fecha_cierre=None)
+<<<<<<< Updated upstream
+=======
+
+@admin.action(description="Informe DPS vehicular")
+def emitirInformeVehicular(self, request, queryset):
+    # Create file to recieve data and create the PDF
+    buffer = BytesIO()
+    # Create the file PDF
+    pdf = canvas.Canvas(buffer)
+    # Inserting in PDF where this 2 first arguments are axis X and Y respectvely
+    set = queryset.all()
+    y = 750
+    x = 50
+    #pdf.drawImage("/home/usuario/Descargas/DPS VEHICULAR 001.jpg", 0, 40, width =595, height=800)
+    pdf.setFont("Helvetica", 10)
+    cant = set.count()
+    if set.count() % 3 != 0:
+        return messages.error(request,'La cantidad de ordenes de trabajo debe ser multiplo de tres')
+    else:
+        for d in set:
+            if d.matafuegos.categoria != 'v':
+                return messages.error(request,'Deben ser ordenes de trabajo de matafuegos vehiculares')
+        for d in set:
+            pdf.drawString(x, y, str(d.matafuegos.numero))
+            pdf.drawString(x+69, y,str(d.matafuegos.fecha_fabricacion.year))
+            pdf.drawString(x+100, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
+            pdf.drawString(x+140, y,str(d.matafuegos.tipo.volumen))
+            pdf.drawString(x+170, y,str(d.matafuegos.categoria))
+            pdf.drawString(x, y-21, str("SEGURIDAD FENIX SA"))
+            pdf.drawString(x+128, y-21, str("120"))
+            pdf.drawString(x+235, y-21, str(d.matafuegos.numero))
+            pdf.drawString(x+287, y-21,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
+            pdf.drawString(x+8, y-60,str(d.matafuegos.fecha_proxima_carga.month))
+            pdf.drawString(x+35, y-60,str(d.matafuegos.fecha_proxima_carga.year))
+            pdf.drawString(x+158, y-55,str(d.matafuegos.patente))
+            pdf.drawString(x+242, y-55,str(d.matafuegos.fecha_proxima_carga.month))
+            pdf.drawString(x+268, y-55,str(d.matafuegos.fecha_proxima_carga.year))
+            pdf.drawString(x+310, y-55,str(d.matafuegos.patente))
+            y = y-288
+            cant -=1
+            Matafuegos.objects.filter(id = d.matafuegos.id).update(numero_dps = Parametros.objects.first().veh_actual)
+            Parametros.objects.filter(id = Parametros.objects.first().id).update(veh_actual = Parametros.objects.first().veh_actual+2)
+            if cant % 3 == 0 and cant !=0:
+                y = 750
+                x = 50
+                pdf.showPage()
+                pdf.setFont("Helvetica", 10)
+        pdf.save()
+        buffer.seek(0)
+        messages.success(request, "Informe emitido")
+        return FileResponse(buffer, as_attachment=True, filename='informe_DPS.pdf')
+>>>>>>> Stashed changes
 
 @admin.action(description='Finalizar orden de trabajo')
 def action_finalizada(modeladmin, request, queryset):
@@ -177,6 +254,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         'monto_total'
 
     )
+<<<<<<< Updated upstream
 
     def get_categoria(self, obj):
         if obj.matafuegos.categoria == 'd':
@@ -197,6 +275,22 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         else:
             return ['estado','fecha_creacion', 'fecha_inicio', 'fecha_cierre','monto_total', ]
 
+=======
+    search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
+    list_filter= ('estado',)
+    actions = [action_iniciada, action_finalizada ,emitirInformeVehicular]
+    ordering=['-fecha_cierre']
+    autocomplete_fields = ['matafuegos']
+    form = OrdenTrabajoForm
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is not None and (obj.estado == 'f' or obj.estado == 'c'):
+            OrdenTrabajoAdmin.inlines = [TareaFinalizadaTabularInline]
+            return ['id', 'fecha_inicio', 'fecha_entrega', 'fecha_creacion','fecha_cierre','notas', 'cliente', 'estado', 'monto_total', 'matafuegos']
+        else:
+            OrdenTrabajoAdmin.inlines = [TareaTabularInline]
+            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total']
+>>>>>>> Stashed changes
 
 class TareaOrdenAdmin(admin.ModelAdmin):
     list_display = (

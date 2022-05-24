@@ -1,8 +1,6 @@
 from datetime import date
 from django.contrib import admin
-
 from django.db import models
-from django.db.models import Prefetch
 from django.urls import reverse
 from cliente.models import Cliente
 from matafuegos.models import Matafuegos
@@ -15,7 +13,11 @@ class Tarea(models.Model):
         return reverse('tarea-detalle', args=[str(self.id)])
 
     def __str__(self):
+<<<<<<< Updated upstream
         return str(self.nombre+" - "+str(self.precio))
+=======
+        return self.nombre
+>>>>>>> Stashed changes
 
 estados = [
     ('p', 'Pendiente'),
@@ -31,7 +33,7 @@ class Ordenes_de_trabajo(models.Model):
     fecha_entrega= models.DateField("Entrega estimada", default=date.today)
     fecha_cierre= models.DateField("Fecha de cierre", blank=True, null=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE)
+    matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE, help_text="Se puede buscar por numero de cliente, de matafuegos y numero de DPS")
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'p')
     monto_total = models.FloatField('Monto', default=0)
     notas = models.CharField('notas', max_length=80, blank=True)
@@ -39,6 +41,7 @@ class Ordenes_de_trabajo(models.Model):
 
     def calcular_monto(self):
         monto=0
+<<<<<<< Updated upstream
         i=0
         for p in TareaOrden.objects.filter(orden=self).values_list('tarea'):
             if TareaOrden.objects.filter(orden=self).values_list('precioAj')[i][0] == 0.0:
@@ -49,6 +52,12 @@ class Ordenes_de_trabajo(models.Model):
         return monto
 
 
+=======
+        for p in TareaOrden.objects.filter(orden=self).values_list('tarea'):
+            monto+= Tarea.objects.filter(id=p[0]).values_list('precio')[0][0]
+        return monto
+
+>>>>>>> Stashed changes
     @admin.display(boolean=True)
     def estados(self):
         if self.estado in ['f', 'c']:
