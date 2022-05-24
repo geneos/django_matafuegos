@@ -38,38 +38,22 @@ class MarcaMatafuegos(models.Model):
 class Matafuegos(models.Model):
     numero = models.IntegerField('Numero')
     numero_dps = models.IntegerField('Numero de DPS')
-<<<<<<< Updated upstream
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
-    patente = models.CharField('Patente', max_length=20, blank=True)
-    direccion = models.CharField('Direccion', max_length=100)
-    localizacion = models.CharField('Localizacion', max_length=100, blank=True)
-=======
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     patente = models.CharField('Patente', max_length=10, blank=True)
     direccion = models.CharField('Direccion', max_length=20)
     localizacion = models.CharField('Localizacion', max_length=20, blank=True)
->>>>>>> Stashed changes
     numero_localizacion = models.IntegerField('Numero de localizacion', null=True, blank=True)
     marca = models.ForeignKey(MarcaMatafuegos, on_delete=models.CASCADE)
     tipo = models.ForeignKey(TipoMatafuegos, on_delete=models.CASCADE)
     cat = [('v', 'Vehicular'),('d', 'Domiciliario'),]
-<<<<<<< Updated upstream
-    categoria = models.CharField('Categoria', max_length=100, choices=cat)
     centro_costo = models.CharField('Centro de costo', max_length=100)
-    fecha_fabricacion = models.DateField()
-    fecha_carga = models.DateField(default=datetime.date.today)
-    fecha_proxima_carga = models.DateField(null=True, blank=True)
-    fecha_ph = models.DateField(default=datetime.date.today)
-    fecha_proxima_ph = models.DateField(null=True, blank=True)
-
-=======
     categoria = models.CharField('Categoria', max_length=12, choices=cat)
     fecha_fabricacion = models.DateField('Fecha de fabricacion')
     fecha_carga = models.DateField('Fecha de carga',default=datetime.date.today)
     fecha_proxima_carga = models.DateField('Fecha de proxima carga',null=True, blank=True)
     fecha_ph = models.DateField('Fecha de PH',default=datetime.date.today)
     fecha_proxima_ph = models.DateField('Fecha de proxima PH',null=True, blank=True)
->>>>>>> Stashed changes
+
 
     def calcularFecha(self, fecha, dias):
         return fecha + datetime.timedelta(days=dias)

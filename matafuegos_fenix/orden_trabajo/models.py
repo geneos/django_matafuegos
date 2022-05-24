@@ -13,11 +13,8 @@ class Tarea(models.Model):
         return reverse('tarea-detalle', args=[str(self.id)])
 
     def __str__(self):
-<<<<<<< Updated upstream
         return str(self.nombre+" - "+str(self.precio))
-=======
-        return self.nombre
->>>>>>> Stashed changes
+
 
 estados = [
     ('p', 'Pendiente'),
@@ -41,7 +38,6 @@ class Ordenes_de_trabajo(models.Model):
 
     def calcular_monto(self):
         monto=0
-<<<<<<< Updated upstream
         i=0
         for p in TareaOrden.objects.filter(orden=self).values_list('tarea'):
             if TareaOrden.objects.filter(orden=self).values_list('precioAj')[i][0] == 0.0:
@@ -52,12 +48,6 @@ class Ordenes_de_trabajo(models.Model):
         return monto
 
 
-=======
-        for p in TareaOrden.objects.filter(orden=self).values_list('tarea'):
-            monto+= Tarea.objects.filter(id=p[0]).values_list('precio')[0][0]
-        return monto
-
->>>>>>> Stashed changes
     @admin.display(boolean=True)
     def estados(self):
         if self.estado in ['f', 'c']:

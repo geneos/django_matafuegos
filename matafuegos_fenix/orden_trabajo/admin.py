@@ -1,23 +1,14 @@
 import os
 from datetime import date
 from io import BytesIO
-<<<<<<< Updated upstream
-from django.contrib import admin, messages
-from django.http import FileResponse
-from reportlab.lib.colors import HexColor
-from reportlab.pdfgen import canvas
 
-from .forms import OrdenForm
-from .models import Tarea, Ordenes_de_trabajo, TareaOrden
-=======
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.contrib import admin, messages
-# Register your models here.
 from .forms import OrdenTrabajoForm
 from .models import Tarea, Ordenes_de_trabajo, TareaOrden, Matafuegos
 from parametros.models import Parametros
->>>>>>> Stashed changes
+
 
 
 class TareaAdmin(admin.ModelAdmin):
@@ -28,12 +19,8 @@ class TareaAdmin(admin.ModelAdmin):
 
 class TareaTabularInline(admin.TabularInline):
     model = TareaOrden
-<<<<<<< Updated upstream
     can_delete = True
     fields = ('tarea', 'precioAj')
-=======
-    can_delete = True
-    fields = ('tarea',)
 
 class TareaFinalizadaTabularInline(admin.TabularInline):
     model = TareaOrden
@@ -44,7 +31,6 @@ class TareaFinalizadaTabularInline(admin.TabularInline):
 
     def has_change_permission(self, request, obj=None):
         return False
->>>>>>> Stashed changes
 
 #ACCIONES
 @admin.action(description='Iniciar orden de trabajo')
@@ -52,8 +38,7 @@ def action_iniciada(modeladmin, request, queryset):
     queryset.update(estado='ep')
     queryset.update(fecha_inicio=date.today())
     queryset.update(fecha_cierre=None)
-<<<<<<< Updated upstream
-=======
+
 
 @admin.action(description="Informe DPS vehicular")
 def emitirInformeVehicular(self, request, queryset):
@@ -103,7 +88,7 @@ def emitirInformeVehicular(self, request, queryset):
         buffer.seek(0)
         messages.success(request, "Informe emitido")
         return FileResponse(buffer, as_attachment=True, filename='informe_DPS.pdf')
->>>>>>> Stashed changes
+
 
 @admin.action(description='Finalizar orden de trabajo')
 def action_finalizada(modeladmin, request, queryset):
@@ -254,7 +239,6 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         'monto_total'
 
     )
-<<<<<<< Updated upstream
 
     def get_categoria(self, obj):
         if obj.matafuegos.categoria == 'd':
@@ -266,20 +250,8 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     inlines = [TareaTabularInline]
     readonly_fields = ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','estados',]
     model = Ordenes_de_trabajo
-    actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden]
+    actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
     ordering = ['-fecha_cierre']
-
-    def get_readonly_fields(self, request, obj=None):
-        if obj is not None and (obj.estado == 'f' or obj.estado == 'c'):
-            return ['id','fecha_inicio', 'fecha_entrega','fecha_creacion', 'fecha_cierre','notas', 'cliente', 'estado', 'monto_total', 'matafuegos']
-        else:
-            return ['estado','fecha_creacion', 'fecha_inicio', 'fecha_cierre','monto_total', ]
-
-=======
-    search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
-    list_filter= ('estado',)
-    actions = [action_iniciada, action_finalizada ,emitirInformeVehicular]
-    ordering=['-fecha_cierre']
     autocomplete_fields = ['matafuegos']
     form = OrdenTrabajoForm
 
@@ -290,7 +262,6 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         else:
             OrdenTrabajoAdmin.inlines = [TareaTabularInline]
             return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total']
->>>>>>> Stashed changes
 
 class TareaOrdenAdmin(admin.ModelAdmin):
     list_display = (
