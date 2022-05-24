@@ -7,11 +7,6 @@ from django.urls import reverse
 from cliente.models import Cliente
 from matafuegos.models import Matafuegos
 
-<<<<<<< Updated upstream
-
-
-=======
->>>>>>> Stashed changes
 class Tarea(models.Model):
     nombre = models.CharField('Nombre', max_length=120)
     precio = models.FloatField("Precio", default=0)
@@ -20,28 +15,20 @@ class Tarea(models.Model):
         return reverse('tarea-detalle', args=[str(self.id)])
 
     def __str__(self):
-        return self.nombre
+        return str(self.nombre+" - "+str(self.precio))
 
-<<<<<<< Updated upstream
-estados= [
-    ('p','Pendiente'),
-    ('ep','En proceso'),
-    ('f','Finalizada'),
-    ('c','Cancelada'),
-=======
 estados = [
     ('p', 'Pendiente'),
     ('ep', 'En proceso'),
     ('f', 'Finalizada'),
     ('c', 'cancelada'),
->>>>>>> Stashed changes
 ]
 
 class Ordenes_de_trabajo(models.Model):
 
     fecha_creacion = models.DateField("Fecha de creacioin de orden", default=date.today)
     fecha_inicio = models.DateField("Fecha de inicio", default=date.today)
-    fecha_entrega= models.DateField("Fecha de entrega estimada", default=date.today)
+    fecha_entrega= models.DateField("Entrega estimada", default=date.today)
     fecha_cierre= models.DateField("Fecha de cierre", blank=True, null=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE)
@@ -52,17 +39,15 @@ class Ordenes_de_trabajo(models.Model):
 
     def calcular_monto(self):
         monto=0
-<<<<<<< Updated upstream
-        for p in Tarea_Orden.objects.filter(orden=self).values_list('tarea'):
-            monto+= Tarea.objects.filter(id=p[0]).values_list('precio')[0][0]
+        i=0
+        for p in TareaOrden.objects.filter(orden=self).values_list('tarea'):
+            if TareaOrden.objects.filter(orden=self).values_list('precioAj')[i][0] == 0.0:
+                monto+= Tarea.objects.filter(id=p[0]).values_list('precio')[0][0]
+            else:
+                monto+= TareaOrden.objects.filter(orden=self).values_list('precioAj')[i][0]
+            i+=1
         return monto
 
-=======
-
-        print("Calculando montos")
-        for p in Tarea_Orden.objects.filter(orden = self).values_list('tarea'):
-            monto += Tarea.objects.filter(id=p[0]).values_list('precio')[0][0]
-        return monto
 
     @admin.display(boolean=True)
     def estados(self):
@@ -70,7 +55,6 @@ class Ordenes_de_trabajo(models.Model):
             return False
         return True
 
->>>>>>> Stashed changes
     def save(self, *args, **kwargs ):
         self.monto_total = self.calcular_monto()
         super(Ordenes_de_trabajo,self).save(*args, **kwargs)
@@ -87,9 +71,10 @@ class Ordenes_de_trabajo(models.Model):
 class TareaOrden(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     orden = models.ForeignKey(Ordenes_de_trabajo, on_delete=models.CASCADE)
+    precioAj = models.FloatField('precio ajustable', default=0)
 
     def save(self, *args, **kwargs):
-        super(Tarea_Orden, self).save(*args, **kwargs)
+        super(TareaOrden, self).save(*args, **kwargs)
         self.orden.save()
 
     def get_absolute_url(self):
@@ -100,5 +85,4 @@ class TareaOrden(models.Model):
 
     def __str__(self):
         return str(self.id)
-
 
