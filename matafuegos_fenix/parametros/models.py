@@ -10,6 +10,8 @@ class Parametros(models.Model):
     dom_fin = models.IntegerField('DOM fin')
     dom_prefijo = models.CharField('DOM prefijo', max_length=5)
     dom_actual = models.IntegerField('DOM actual')
+    email = models.EmailField('Email', blank=True, max_length=264)
+    password = models.CharField('Contraseña', max_length=20)
 
     class Meta:
         verbose_name_plural = "Parametros"

@@ -1,22 +1,22 @@
 import os
+import smtplib
 from datetime import date, timedelta
-
-from orden_trabajo.models import Ordenes_de_trabajo,TareaOrden
-
-
-#ACCIONES
-
-from django.contrib import admin
-
-# Register your models here.
-import os
+from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from django.contrib import admin, messages
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from io import BytesIO
 from .models import Cliente
 from reportlab.pdfgen import canvas
-from orden_trabajo.models import Ordenes_de_trabajo
+from orden_trabajo.models import Ordenes_de_trabajo,TareaOrden
 from matafuegos.models import Matafuegos
+
+#ACCIONES
+from matafuegos_fenix import settings
+
+from parametros.models import Parametros
 
 
 @admin.action(description='Estado inactivo')
@@ -52,13 +52,7 @@ def cabeceraTablaOrdenes(pdf,y):
     pdf.drawString(389, y-16, 'Monto Total')
     pdf.drawString(452, y-16, 'Tareas realizadas')
 
-
-
-#Emite el informe con la informacion de un cliente, los matafuegos que tiene asociado y las tareas.
-@admin.action(description="Informe del cliente")
-def emitirInformeCliente(self, request, queryset):
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer)
+def generarInformeCliente(pdf,request,queryset):
     settings_dir = os.path.dirname(__file__)
     PROJECT_ROOT = os.path.abspath(os.path.dirname(settings_dir))
     img = os.path.join(PROJECT_ROOT, 'seguridad_fenix.png')
@@ -160,6 +154,61 @@ def emitirInformeCliente(self, request, queryset):
                     y = y-22
         pdf.showPage()
         pdf.save()
+
+@admin.action(description="Enviar informe al cliente")
+def send_email(self, request, queryset):
+    try:
+        pdf = canvas.Canvas("InformeCliente.pdf")
+        set = queryset.all()
+        if set.count()>1:
+            return messages.error(request,'Debe seleccionar solo un cliente')
+        else:
+            for d in set:
+                if d.email:
+                     mail_to = d.email
+                     nombre= str(d.nombre)
+                else:
+                     return messages.error(request,'El cliente seleccionado no tiene un email especificado')
+        generarInformeCliente(pdf, request,queryset)
+        mailServer = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        info = Parametros.objects.filter(id= 1)
+        for i in info:
+            email = i.email
+            contraseña= i.password
+        mailServer.login(email,contraseña )
+        mensaje = MIMEMultipart()
+        with open('InformeCliente.pdf', "rb") as f:
+            attach = MIMEApplication(f.read(),_subtype="pdf")
+        attach.add_header('Content-Disposition','attachment',filename=str('informeCliente.pdf'))
+        mensaje.attach(MIMEText('Hola '+ nombre + ', te compartimos el informe con la información de tus matafuegos y las ordenes de trabajo. ', 'plain'))
+        mensaje.attach(attach)
+        #IMAGEN
+        img_data= open('seguridad_fenix.png', 'rb').read()
+        body = MIMEText('<p>Muchas Gracias! <img src="cid:seguridad_fenix" /></p>', _subtype='html')
+        mensaje.attach(body)
+        img = MIMEImage(img_data, 'png')
+        img.add_header('Content-Id', '<seguridad_fenix>')  # angle brackets are important
+        img.add_header("Content-Disposition", "inline", filename="myimage") # David Hess recommended this edit
+        mensaje.attach(img)
+        mensaje['From'] = email #settings.EMAIL_HOST_USER
+        mensaje['To']= mail_to
+        mensaje['Subject'] = "nuevo correo"
+        if Parametros.email:
+            mailServer.sendmail(email, mail_to, mensaje.as_string())
+        else:
+            return messages.error(request,'No hay un email especificado')
+    except Exception as e:
+        print(e)
+
+#Emite el informe con la informacion de un cliente, los matafuegos que tiene asociado y las tareas.
+@admin.action(description="Informe del cliente")
+def emitirInformeCliente(self, request, queryset):
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer)
+        generarInformeCliente(pdf,request,queryset)
         buffer.seek(0)
         messages.success(request, "Informe emitido")
         return FileResponse(buffer, as_attachment=True, filename='Informe cliente.pdf')
@@ -194,7 +243,7 @@ class CLienteAdmin(admin.ModelAdmin):
 
     search_fields= ('codigo', 'nombre', 'cuit_cuil',)
     list_filter= ('estado', 'tipo',)
-    actions = [make_inactivo, make_activo, emitirInformeCliente]
+    actions = [make_inactivo, make_activo, emitirInformeCliente, send_email]
     inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]
 
 admin.site.register(Cliente, CLienteAdmin)
