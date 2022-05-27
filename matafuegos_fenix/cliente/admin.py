@@ -178,6 +178,8 @@ def send_email(self, request, queryset):
         for i in info:
             email = i.email
             contraseña= i.password
+        if not (email and contraseña):
+            return messages.error(request,'No hay un email especificado')
         mailServer.login(email,contraseña )
         mensaje = MIMEMultipart()
         with open('InformeCliente.pdf', "rb") as f:
@@ -196,12 +198,10 @@ def send_email(self, request, queryset):
         mensaje['From'] = email #settings.EMAIL_HOST_USER
         mensaje['To']= mail_to
         mensaje['Subject'] = "nuevo correo"
-        if Parametros.email:
-            mailServer.sendmail(email, mail_to, mensaje.as_string())
-        else:
-            return messages.error(request,'No hay un email especificado')
+        mailServer.sendmail(email, mail_to, mensaje.as_string())
+        messages.success(request, "Email enviado correctamente")
     except Exception as e:
-        print(e)
+        print("Error en el envio del email")
 
 #Emite el informe con la informacion de un cliente, los matafuegos que tiene asociado y las tareas.
 @admin.action(description="Informe del cliente")
