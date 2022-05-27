@@ -197,7 +197,7 @@ def send_email(self, request, queryset):
         mensaje.attach(img)
         mensaje['From'] = email #settings.EMAIL_HOST_USER
         mensaje['To']= mail_to
-        mensaje['Subject'] = "nuevo correo"
+        mensaje['Subject'] = "Informe Seguridad Fenix"
         mailServer.sendmail(email, mail_to, mensaje.as_string())
         messages.success(request, "Email enviado correctamente")
     except Exception as e:
