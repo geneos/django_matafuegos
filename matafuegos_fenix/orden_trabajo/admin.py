@@ -248,7 +248,6 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
     list_filter = ('estado', 'matafuegos__categoria',)
     inlines = [TareaTabularInline]
-    readonly_fields = ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','estados',]
     model = Ordenes_de_trabajo
     actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
     ordering = ['-fecha_cierre']
@@ -258,10 +257,10 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj is not None and (obj.estado == 'f' or obj.estado == 'c'):
             OrdenTrabajoAdmin.inlines = [TareaFinalizadaTabularInline]
-            return ['id', 'fecha_inicio', 'fecha_entrega', 'fecha_creacion','fecha_cierre','notas', 'cliente', 'estado', 'monto_total', 'matafuegos']
+            return ['id', 'fecha_inicio', 'fecha_entrega', 'fecha_creacion','fecha_cierre','notas', 'cliente', 'estado', 'monto_total', 'matafuegos','cliente']
         else:
             OrdenTrabajoAdmin.inlines = [TareaTabularInline]
-            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total']
+            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','cliente','estado']
 
 class TareaOrdenAdmin(admin.ModelAdmin):
     list_display = (
