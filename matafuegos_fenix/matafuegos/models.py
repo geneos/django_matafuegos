@@ -46,7 +46,6 @@ class Matafuegos(models.Model):
     marca = models.ForeignKey(MarcaMatafuegos, on_delete=models.CASCADE)
     tipo = models.ForeignKey(TipoMatafuegos, on_delete=models.CASCADE)
     cat = [('v', 'Vehicular'),('d', 'Domiciliario'),]
-    centro_costo = models.CharField('Centro de costo', max_length=100)
     categoria = models.CharField('Categoria', max_length=12, choices=cat)
     fecha_fabricacion = models.DateField('Fecha de fabricacion')
     fecha_carga = models.DateField('Fecha de carga',default=datetime.date.today)
