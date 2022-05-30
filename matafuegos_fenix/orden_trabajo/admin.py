@@ -5,7 +5,7 @@ from io import BytesIO
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.contrib import admin, messages
-from .forms import OrdenTrabajoForm
+
 from .models import Tarea, Ordenes_de_trabajo, TareaOrden, Matafuegos
 from parametros.models import Parametros
 
@@ -252,7 +252,6 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
     ordering = ['-fecha_cierre']
     autocomplete_fields = ['matafuegos']
-    form = OrdenTrabajoForm
 
     def get_readonly_fields(self, request, obj=None):
         if obj is not None and (obj.estado == 'f' or obj.estado == 'c'):
