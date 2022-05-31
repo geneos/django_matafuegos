@@ -56,7 +56,7 @@ class Ordenes_de_trabajo(models.Model):
 
     def save(self, *args, **kwargs ):
         self.monto_total = self.calcular_monto()
-        self.cliente = self.matafuegos.cliente
+        #self.cliente = self.matafuegos.cliente
         super(Ordenes_de_trabajo,self).save(*args, **kwargs)
 
     def get_absolute_url(self):

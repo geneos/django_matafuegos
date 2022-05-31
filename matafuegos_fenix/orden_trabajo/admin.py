@@ -6,6 +6,7 @@ from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.contrib import admin, messages
 
+from .forms import OrdenesTrabajoAdminForm
 from .models import Tarea, Ordenes_de_trabajo, TareaOrden, Matafuegos
 from parametros.models import Parametros
 
@@ -251,15 +252,16 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     model = Ordenes_de_trabajo
     actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
     ordering = ['-fecha_cierre']
-    autocomplete_fields = ['matafuegos']
+    #autocomplete_fields = ['matafuegos']
+    form = OrdenesTrabajoAdminForm
 
     def get_readonly_fields(self, request, obj=None):
         if obj is not None and (obj.estado == 'f' or obj.estado == 'c'):
             OrdenTrabajoAdmin.inlines = [TareaFinalizadaTabularInline]
-            return ['id', 'fecha_inicio', 'fecha_entrega', 'fecha_creacion','fecha_cierre','notas', 'cliente', 'estado', 'monto_total', 'matafuegos','cliente']
+            return ['id', 'fecha_inicio', 'fecha_entrega', 'fecha_creacion','fecha_cierre','notas', 'estado', 'monto_total', 'matafuegos','cliente']
         else:
             OrdenTrabajoAdmin.inlines = [TareaTabularInline]
-            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','cliente','estado']
+            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','estado']
 
 class TareaOrdenAdmin(admin.ModelAdmin):
     list_display = (
