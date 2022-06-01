@@ -5,7 +5,7 @@ from io import BytesIO
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.contrib import admin, messages
-
+from reportlab.lib.units import inch
 from .forms import OrdenesTrabajoAdminForm
 from .models import Tarea, Ordenes_de_trabajo, TareaOrden, Matafuegos
 from parametros.models import Parametros
@@ -47,9 +47,10 @@ def emitirInformeVehicular(self, request, queryset):
     buffer = BytesIO()
     # Create the file PDF
     pdf = canvas.Canvas(buffer)
+    pdf.setPageSize((6.69291*inch, 12*inch))
     # Inserting in PDF where this 2 first arguments are axis X and Y respectvely
     set = queryset.all()
-    y = 750
+    y = 773
     x = 50
     #pdf.drawImage("/home/usuario/Descargas/DPS VEHICULAR 001.jpg", 0, 40, width =595, height=800)
     pdf.setFont("Helvetica", 10)
@@ -61,22 +62,22 @@ def emitirInformeVehicular(self, request, queryset):
             if d.matafuegos.categoria != 'v':
                 return messages.error(request,'Deben ser ordenes de trabajo de matafuegos vehiculares')
         for d in set:
-            pdf.drawString(x, y, str(d.matafuegos.numero))
-            pdf.drawString(x+69, y,str(d.matafuegos.fecha_fabricacion.year))
-            pdf.drawString(x+100, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
-            pdf.drawString(x+140, y,str(d.matafuegos.tipo.volumen))
-            pdf.drawString(x+170, y,str(d.matafuegos.categoria))
-            pdf.drawString(x, y-21, str("SEGURIDAD FENIX SA"))
-            pdf.drawString(x+128, y-21, str("120"))
-            pdf.drawString(x+235, y-21, str(d.matafuegos.numero))
-            pdf.drawString(x+287, y-21,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
+            pdf.drawString(x+3, y, str(d.matafuegos.numero))
+            pdf.drawString(x+71, y,str(d.matafuegos.fecha_fabricacion.year))
+            pdf.drawString(x+110, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
+            pdf.drawString(x+145, y,str(d.matafuegos.tipo.volumen))
+            pdf.drawString(x+176, y,str(d.matafuegos.categoria))
+            pdf.drawString(x+3, y-23, str("SEGURIDAD FENIX SA"))
+            pdf.drawString(x+128, y-23, str("120"))
+            pdf.drawString(x+252, y-23, str(d.matafuegos.numero))
+            pdf.drawString(x+307, y-23,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
             pdf.drawString(x+8, y-60,str(d.matafuegos.fecha_proxima_carga.month))
             pdf.drawString(x+35, y-60,str(d.matafuegos.fecha_proxima_carga.year))
-            pdf.drawString(x+158, y-55,str(d.matafuegos.patente))
-            pdf.drawString(x+242, y-55,str(d.matafuegos.fecha_proxima_carga.month))
-            pdf.drawString(x+268, y-55,str(d.matafuegos.fecha_proxima_carga.year))
-            pdf.drawString(x+310, y-55,str(d.matafuegos.patente))
-            y = y-288
+            pdf.drawString(x+163, y-60,str(d.matafuegos.patente))
+            pdf.drawString(x+250, y-60,str(d.matafuegos.fecha_proxima_carga.month))
+            pdf.drawString(x+278, y-60,str(d.matafuegos.fecha_proxima_carga.year))
+            pdf.drawString(x+325, y-60,str(d.matafuegos.patente))
+            y = y-295
             cant -=1
             Matafuegos.objects.filter(id = d.matafuegos.id).update(numero_dps = Parametros.objects.first().veh_actual)
             Parametros.objects.filter(id = Parametros.objects.first().id).update(veh_actual = Parametros.objects.first().veh_actual+2)
@@ -183,8 +184,9 @@ def emitirInformeOrden(self, request, queryset):
 def emitirInformeDPSFijo(self, request, queryset):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer)
-    y= 752
-    x=50
+    pdf.setPageSize((6.69291*inch, 12*inch))
+    y= 775
+    x=52
     pdf.setFont("Helvetica", 10)
    #pdf.drawImage("DPS FIJA 2019.png", 0, 40, width=595, height=800)
     set = queryset.all()
@@ -195,21 +197,21 @@ def emitirInformeDPSFijo(self, request, queryset):
             if str(d.matafuegos.categoria) == 'd':
                 pdf.drawString(x, y, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
                 pdf.drawString(x+67, y, str(d.matafuegos.fecha_fabricacion.year))# AÑO FABRICACIÓN
-                pdf.drawString(x, y-20, str("SEGURIDAD FENIX SA"))
-                pdf.drawString(x, y-20, str("SEGURIDAD FENIX SA"))
-                pdf.drawString(x+125, y-20, str("120"))
-                pdf.drawString(x+101, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
-                pdf.drawString(x+140, y,str(d.matafuegos.tipo.volumen))#CAPACIDAD
-                pdf.drawString(x+170, y,str(d.matafuegos.tipo)) #AGENTE EXTINTOR
+                pdf.drawString(x, y-24, str("SEGURIDAD FENIX SA"))
+                pdf.drawString(x, y-24, str("SEGURIDAD FENIX SA"))
+                pdf.drawString(x+125, y-24, str("120"))
+                pdf.drawString(x+106, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
+                pdf.drawString(x+141, y,str(d.matafuegos.tipo.volumen))#CAPACIDAD
+                pdf.drawString(x+173, y,str(d.matafuegos.tipo)) #AGENTE EXTINTOR
                 # ______________
-                pdf.drawString(x+8, y-55,str(d.matafuegos.fecha_proxima_carga.month)) #Proxima revision recarga mes
-                pdf.drawString(x+35, y-55,str(d.matafuegos.fecha_proxima_carga.year)) #Proxima revision recarga año
+                pdf.drawString(x+8, y-59,str(d.matafuegos.fecha_proxima_carga.month)) #Proxima revision recarga mes
+                pdf.drawString(x+36, y-59,str(d.matafuegos.fecha_proxima_carga.year)) #Proxima revision recarga año
                 #Para exintor
-                pdf.drawString(x+240, y-21, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
-                pdf.drawString(x+290, y-21, str(d.matafuegos.fecha_proxima_ph.month)+ ' ' +str(d.matafuegos.fecha_proxima_ph.year ))#venc PH
-                pdf.drawString(x+243, y-58,str(d.matafuegos.fecha_proxima_carga.month))
-                pdf.drawString(x+269, y-58,str(d.matafuegos.fecha_proxima_carga.year))
-                y = y-288
+                pdf.drawString(x+244, y-24, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
+                pdf.drawString(x+302, y-24, str(d.matafuegos.fecha_proxima_ph.month)+ ' ' +str(d.matafuegos.fecha_proxima_ph.year ))#venc PH
+                pdf.drawString(x+248, y-59,str(d.matafuegos.fecha_proxima_carga.month))
+                pdf.drawString(x+276, y-59,str(d.matafuegos.fecha_proxima_carga.year))
+                y = y-296
             else:
                 messages.error(request, "Seleccionar solo categoria domiciliaria")
                 return
