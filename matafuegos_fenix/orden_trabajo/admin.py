@@ -52,7 +52,6 @@ def emitirInformeVehicular(self, request, queryset):
     set = queryset.all()
     y = 773
     x = 50
-    #pdf.drawImage("/home/usuario/Descargas/DPS VEHICULAR 001.jpg", 0, 40, width =595, height=800)
     pdf.setFont("Helvetica", 10)
     cant = set.count()
     if set.count() % 3 != 0:
