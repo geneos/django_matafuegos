@@ -13,7 +13,7 @@ class Tarea(models.Model):
         return reverse('tarea-detalle', args=[str(self.id)])
 
     def __str__(self):
-        return str(self.nombre+" - "+str(self.precio))
+        return str(self.nombre+" - $"+str(self.precio))
 
 
 estados = [
