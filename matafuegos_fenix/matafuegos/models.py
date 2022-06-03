@@ -17,8 +17,8 @@ class CategoriaMatafuegos(models.Model):
 class TipoMatafuegos(models.Model):
     tipo = models.CharField('Tipo', max_length=10)
     categoria = models.ForeignKey(CategoriaMatafuegos, on_delete=models.CASCADE)
-    vencimiento_carga = models.IntegerField('Vencimiento de carga')
-    vencimiento_ph = models.IntegerField('Vencimiento de PH')
+    vencimiento_carga = models.IntegerField('Vencimiento de carga', help_text="Cantidad de dias")
+    vencimiento_ph = models.IntegerField('Vencimiento de PH', help_text="Cantidad de dias")
     volumen = models.FloatField('Volumen')
     peso = models.FloatField('Peso')
 

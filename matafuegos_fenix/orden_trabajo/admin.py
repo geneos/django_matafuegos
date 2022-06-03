@@ -41,7 +41,7 @@ def action_iniciada(modeladmin, request, queryset):
     queryset.update(fecha_cierre=None)
 
 
-@admin.action(description="Informe DPS vehicular")
+@admin.action(description="Oblea DPS vehicular")
 def emitirInformeVehicular(self, request, queryset):
     # Create file to recieve data and create the PDF
     buffer = BytesIO()
@@ -88,7 +88,7 @@ def emitirInformeVehicular(self, request, queryset):
         pdf.save()
         buffer.seek(0)
         messages.success(request, "Informe emitido")
-        return FileResponse(buffer, as_attachment=True, filename='informe_DPS.pdf')
+        return FileResponse(buffer, as_attachment=True, filename='oblea_DPS_vehicular.pdf')
 
 
 @admin.action(description='Finalizar orden de trabajo')
@@ -179,7 +179,7 @@ def emitirInformeOrden(self, request, queryset):
         messages.error(request, "Seleccionar una orden")
 
 #Accion para que emita la información de las DPS domiciliarias
-@admin.action(description="Informe DPS Domiciliaria")
+@admin.action(description="Oblea DPS Domiciliaria")
 def emitirInformeDPSFijo(self, request, queryset):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer)
@@ -223,7 +223,7 @@ def emitirInformeDPSFijo(self, request, queryset):
         pdf.save()
         buffer.seek(0)
         messages.success(request, "Informe emitido")
-        return FileResponse(buffer, as_attachment=True, filename='DPS FIJA.pdf')
+        return FileResponse(buffer, as_attachment=True, filename='oblea_DPS_domiciliaria.pdf')
     else:
         messages.error(request, "Seleccionar multiplos de 3")
 

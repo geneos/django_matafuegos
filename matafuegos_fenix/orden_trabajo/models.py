@@ -26,11 +26,11 @@ estados = [
 class Ordenes_de_trabajo(models.Model):
 
     fecha_creacion = models.DateField("Fecha de creacioin de orden", default=date.today)
-    fecha_inicio = models.DateField("Fecha de inicio", default=date.today)
+    fecha_inicio = models.DateField("Fecha de inicio", blank=True, null=True)
     fecha_entrega= models.DateField("Entrega estimada", default=date.today)
     fecha_cierre= models.DateField("Fecha de cierre", blank=True, null=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE, help_text="Se puede buscar por numero de cliente, de matafuegos y numero de DPS")
+    matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE)
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'p')
     monto_total = models.FloatField('Monto', default=0)
     notas = models.CharField('notas', max_length=80, blank=True)
