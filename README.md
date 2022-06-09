@@ -7,7 +7,8 @@ Crear un archivo '.env' en la carpeta 'django_matafuegos/matafuegos_fenix/matafu
 
 Copiar el contenido del archivo '.env_template' en el nuevo '.env' y completar los datos. La secret_key la generamos a continuacion.
 
-Obtener la 'secret_key' con el comando: python -c 'from django.core.management.utils import get_random_secret_key; \ print(get_random_secret_key())'
+Obtener la 'secret_key' con el comando: python -c 'from django.core.management.utils import get_random_secret_key; \
+            print(get_random_secret_key())'
 
 Copiar el resultado del comando y pegarlo en el archivo '.env'.
 
