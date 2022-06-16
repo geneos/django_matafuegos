@@ -15,12 +15,12 @@ class CategoriaMatafuegos(models.Model):
         verbose_name_plural = "Categoria Matafuegos"
 
 class TipoMatafuegos(models.Model):
-    tipo = models.CharField('Tipo', max_length=10)
-    categoria = models.ForeignKey(CategoriaMatafuegos, on_delete=models.CASCADE)
-    vencimiento_carga = models.IntegerField('Vencimiento de carga', help_text="Cantidad de dias")
-    vencimiento_ph = models.IntegerField('Vencimiento de PH', help_text="Cantidad de dias")
-    volumen = models.FloatField('Volumen')
-    peso = models.FloatField('Peso')
+    tipo = models.CharField('Tipo', max_length=20)
+    categoria = models.ForeignKey(CategoriaMatafuegos, on_delete=models.CASCADE, null=True, blank=True)
+    vencimiento_carga = models.IntegerField('Vencimiento de carga', help_text="Cantidad de dias", null=True, blank=True)
+    vencimiento_ph = models.IntegerField('Vencimiento de PH', help_text="Cantidad de dias", null=True, blank=True)
+    volumen = models.FloatField('Volumen', null=True, blank=True)
+    peso = models.FloatField('Peso', null=True, blank=True)
 
     def __str__(self):
         return self.tipo
@@ -37,11 +37,12 @@ class MarcaMatafuegos(models.Model):
 
 class Matafuegos(models.Model):
     numero = models.IntegerField('Numero')
+    numeroInterno= models.IntegerField('Numero interno',blank=True, null= True)
     numero_dps = models.IntegerField('Numero de DPS')
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
-    patente = models.CharField('Patente', max_length=10, blank=True)
-    direccion = models.CharField('Direccion', max_length=20)
-    localizacion = models.CharField('Localizacion', max_length=20, blank=True)
+    patente = models.CharField('Patente', max_length=10, blank=True, null= True)
+    direccion = models.CharField('Direccion', max_length=20, null=True, blank=True)
+    localizacion = models.CharField('Localizacion', max_length=20, blank=True, null= True)
     numero_localizacion = models.IntegerField('Numero de localizacion', null=True, blank=True)
     marca = models.ForeignKey(MarcaMatafuegos, on_delete=models.CASCADE)
     tipo = models.ForeignKey(TipoMatafuegos, on_delete=models.CASCADE)

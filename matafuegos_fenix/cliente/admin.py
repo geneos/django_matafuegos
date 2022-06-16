@@ -241,7 +241,7 @@ class CLienteAdmin(admin.ModelAdmin):
         'direccion',
     )
 
-    search_fields= ('codigo', 'nombre', 'cuit_cuil',)
+    search_fields= ('codigo', 'nombre', 'cuit_cuil','cintacto',)
     list_filter= ('estado', 'tipo',)
     actions = [make_inactivo, make_activo, emitirInformeCliente, send_email]
     inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]

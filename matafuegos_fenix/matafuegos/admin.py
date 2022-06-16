@@ -18,12 +18,13 @@ class MatafuegosResource(resources.ModelResource):
 class MatafuegosAdmin(ImportExportModelAdmin):
     list_display = (
         'numero',
+        'numeroInterno',
         'numero_dps',
         'fecha_proxima_carga',
         'fecha_proxima_ph',
     )
     form = ControlPatenteForm
-    search_fields= ('cliente__codigo','numero', 'numero_dps',)
+    search_fields= ('cliente','numero', 'numero_dps',)
     list_filter= ('marca',)
     actions = ['proximos_vencimientos','alerta_vencimientos']
     readonly_fields=['fecha_proxima_carga','fecha_proxima_ph']
