@@ -38,20 +38,20 @@ class MarcaMatafuegos(models.Model):
 class Matafuegos(models.Model):
     numero = models.IntegerField('Numero')
     numeroInterno= models.IntegerField('Numero interno',blank=True, null= True)
-    numero_dps = models.IntegerField('Numero de DPS')
+    numero_dps = models.IntegerField('Numero de DPS', null=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
     patente = models.CharField('Patente', max_length=10, blank=True, null= True)
-    direccion = models.CharField('Direccion', max_length=20, null=True, blank=True)
-    localizacion = models.CharField('Localizacion', max_length=20, blank=True, null= True)
+    direccion = models.CharField('Direccion', max_length=30, null=True, blank=True)
+    localizacion = models.CharField('Localizacion', max_length=60, blank=True, null= True)
     numero_localizacion = models.IntegerField('Numero de localizacion', null=True, blank=True)
-    marca = models.ForeignKey(MarcaMatafuegos, on_delete=models.CASCADE)
+    marca = models.ForeignKey(MarcaMatafuegos, on_delete=models.CASCADE, null=True)
     tipo = models.ForeignKey(TipoMatafuegos, on_delete=models.CASCADE)
     cat = [('v', 'Vehicular'),('d', 'Domiciliario'),]
     categoria = models.CharField('Categoria', max_length=12, choices=cat)
-    fecha_fabricacion = models.DateField('Fecha de fabricacion')
-    fecha_carga = models.DateField('Fecha de carga',default=datetime.date.today)
+    fecha_fabricacion = models.DateField('Fecha de fabricacion', null=True)
+    fecha_carga = models.DateField('Fecha de carga',default=datetime.date.today, null= True)
     fecha_proxima_carga = models.DateField('Fecha de proxima carga',null=True, blank=True)
-    fecha_ph = models.DateField('Fecha de PH',default=datetime.date.today)
+    fecha_ph = models.DateField('Fecha de PH',default=datetime.date.today, null=True)
     fecha_proxima_ph = models.DateField('Fecha de proxima PH',null=True, blank=True)
 
 
