@@ -247,13 +247,14 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
             return 'Domiciliaria'
         return 'Vehicular'
     get_categoria.short_description = 'Categoria'
+    autocomplete_fields = ('cliente',)
     search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
     list_filter = ('estado', 'matafuegos__categoria',)
     inlines = [TareaTabularInline]
     model = Ordenes_de_trabajo
     actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
     ordering = ['-fecha_cierre']
-    #autocomplete_fields = ['matafuegos']
+
     form = OrdenesTrabajoAdminForm
 
     def get_readonly_fields(self, request, obj=None):

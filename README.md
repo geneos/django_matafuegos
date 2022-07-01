@@ -12,6 +12,6 @@ Obtener la 'secret_key' con el comando: python -c 'from django.core.management.u
 
 Copiar el resultado del comando y pegarlo en el archivo '.env'.
 
-Instalar los requerimientos con el comando: pip install -r requirementes.txt 
+Instalar los requerimientos con el comando: pip install -r requirements.txt 
 
 Correr el comando migrate: python manage.py migrate

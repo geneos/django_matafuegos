@@ -206,13 +206,17 @@ class MatafuegosAdmin(ImportExportModelAdmin):
                 xlist = [30, 140, 186,293,334,382,445,505, 565]
                 ylist = [y, y-18]
                 pdf.grid(xlist, ylist)
-                if len(d.cliente.nombre)>24:
-                    pdf.drawString(32, y-16, d.cliente.nombre[0:23])
+                if len(d.cliente.nombre)>20:
+                    pdf.drawString(32, y-16, d.cliente.nombre[0:19])
                 else:
                     pdf.drawString(32, y-16, d.cliente.nombre)
                 if d.numero_localizacion:
                     pdf.drawString(142, y-16, str(d.numero_localizacion))
-                pdf.drawString(188, y-16, d.localizacion)
+                if d.localizacion != "NULL":
+                    if len(d.localizacion)>18:
+                        pdf.drawString(188, y-16, d.localizacion[0:17])
+                    else:
+                        pdf.drawString(188, y-16, d.localizacion)
                 pdf.drawString(295, y-16, d.tipo.tipo)
                 pdf.drawString(336, y-16, str(d.tipo.volumen))
                 pdf.drawString(384, y-16, str(d.numero))

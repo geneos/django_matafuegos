@@ -12,7 +12,8 @@ class ClienteAutoComplete(autocomplete.Select2QuerySetView):
 
         # TODO: Unificar filtrado de is_active
         qs = Cliente.objects.all()
-
+        if self.q:
+            qs = qs.filter(nombre__istartswith=self.q)
         return qs
 
 class MatafuegosAutoComplete(autocomplete.Select2QuerySetView):
@@ -22,10 +23,13 @@ class MatafuegosAutoComplete(autocomplete.Select2QuerySetView):
             return Matafuegos.objects.none()
 
         cliente = self.forwarded.get('cliente', None)
+
         if cliente is not None:
             # TODO: Unificar filtrado de is_active
             qs = Matafuegos.objects.filter(cliente=cliente)
         else:
             qs = Matafuegos.objects.none()
+        if self.q:
+            qs = qs.filter(numero__istartswith=self.q)
 
         return qs

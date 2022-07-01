@@ -82,7 +82,7 @@ def generarInformeCliente(pdf,request,queryset):
             y = y-30
             pdf.drawString(x, y, 'MATAFUEGOS')
             y = y-10
-            matafuegos = Matafuegos.objects.filter(cliente = d.id)
+            matafuegos = Matafuegos.objects.filter(cliente = d.codigo)
             cabeceraTablaMatafuegos(pdf,y)
             pdf.setFont("Helvetica", 10)
             y = y-22
@@ -92,7 +92,8 @@ def generarInformeCliente(pdf,request,queryset):
                 pdf.grid(xlist, ylist)
                 pdf.drawString(48, y-16, str(m.numero))
                 pdf.drawString(135, y-16,str(m.numero_dps))
-                pdf.drawString(220, y-16,str(m.direccion))
+                if m.direccion != "NULL":
+                    pdf.drawString(220, y-16,str(m.direccion))
                 pdf.drawString(332, y-16,str(m.tipo))
                 pdf.drawString(383, y-16,str(m.fecha_proxima_carga))
                 pdf.drawString(470, y-16,str(m.fecha_proxima_ph))
@@ -108,7 +109,7 @@ def generarInformeCliente(pdf,request,queryset):
             y= y - 30
             today = date.today()
             td = timedelta(500)
-            ordenes= Ordenes_de_trabajo.objects.filter(cliente= d.id, fecha_inicio__range=(today-td, today))
+            ordenes= Ordenes_de_trabajo.objects.filter(cliente= d.codigo, fecha_inicio__range=(today-td, today))
             cabeceraTablaOrdenes(pdf,y)
             pdf.setFont("Helvetica", 10)
             y = y-22
@@ -185,11 +186,12 @@ def send_email(self, request, queryset):
         with open('InformeCliente.pdf', "rb") as f:
             attach = MIMEApplication(f.read(),_subtype="pdf")
         attach.add_header('Content-Disposition','attachment',filename=str('informeCliente.pdf'))
-        mensaje.attach(MIMEText('Hola '+ nombre + ', te compartimos el informe con la información de tus matafuegos y las ordenes de trabajo. ', 'plain'))
+        mensaje.attach(MIMEText('Hola '+ nombre + ', te compartimos el informe con la información de tus matafuegos y las ordenes de trabajo. \n ', 'plain'))
+        mensaje.attach(MIMEText('Muchas gracias! ', 'plain'))
         mensaje.attach(attach)
         #IMAGEN
         img_data= open('seguridad_fenix.png', 'rb').read()
-        body = MIMEText('<p>Muchas Gracias! <img src="cid:seguridad_fenix" /></p>', _subtype='html')
+        body = MIMEText('<p><img src="cid:seguridad_fenix" /></p>', _subtype='html')
         mensaje.attach(body)
         img = MIMEImage(img_data, 'png')
         img.add_header('Content-Id', '<seguridad_fenix>')  # angle brackets are important
@@ -241,7 +243,7 @@ class CLienteAdmin(admin.ModelAdmin):
         'direccion',
     )
 
-    search_fields= ('codigo', 'nombre', 'cuit_cuil','cintacto',)
+    search_fields= ('codigo', 'nombre', 'cuit_cuil','contacto',)
     list_filter= ('estado', 'tipo',)
     actions = [make_inactivo, make_activo, emitirInformeCliente, send_email]
     inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]
