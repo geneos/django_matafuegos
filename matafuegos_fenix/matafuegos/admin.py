@@ -24,11 +24,12 @@ class MatafuegosAdmin(ImportExportModelAdmin):
         'fecha_proxima_ph',
     )
     form = ControlPatenteForm
-    search_fields= ('cliente','numero', 'numero_dps',)
-    list_filter= ('marca',)
+    search_fields= ('cliente__nombre','numero', 'numero_dps',)
+    list_filter= ('categoria',)
     actions = ['proximos_vencimientos','alerta_vencimientos']
     readonly_fields=['fecha_proxima_carga','fecha_proxima_ph']
     resource_class = MatafuegosResource
+
 
     """Funcion para que no sea necesario seleccionar un matafuego para la accion proximos-vencimientos"""
     def changelist_view(self, request, extra_context=None):
