@@ -155,7 +155,61 @@ def generarInformeCliente(pdf,request,queryset):
                     y = y-22
         pdf.showPage()
         pdf.save()
-
+def generarInformeClienteSinOrdenes(pdf,request,queryset):
+    settings_dir = os.path.dirname(__file__)
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(settings_dir))
+    img = os.path.join(PROJECT_ROOT, 'seguridad_fenix.png')
+    pdf.drawImage(img, 22,720,550,100)
+    set = queryset.all()
+    y = 700
+    x = 45
+    e = 15
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(x, y, 'INFORME DEL CLIENTE')
+    pdf.setFont("Helvetica", 10)
+    y= y-15
+    if set.count()>1:
+        return messages.error(request,'Debe seleccionar solo un cliente')
+    else:
+        for d in set:
+            pdf.drawString(x, y, 'Nombre/Razón Social: '+str(d.nombre))
+            y = y-15
+            pdf.drawString(x, y, 'Codigo: '+str(d.codigo))
+            y = y-e
+            pdf.drawString(x, y, 'CUIT/CUIL: '+str(d.cuit_cuil))
+            y = y-e
+            pdf.drawString(x, y, 'Dirección: '+str(d.direccion))
+            y = y-e
+            pdf.drawString(x, y, 'Telefono: '+str(d.telefono))
+            y = y-e
+            y = y-30
+            pdf.drawString(x, y, 'MATAFUEGOS')
+            y = y-10
+            matafuegos = Matafuegos.objects.filter(cliente = d.codigo)
+            cabeceraTablaMatafuegos(pdf,y)
+            pdf.setFont("Helvetica", 10)
+            y = y-22
+            for m in matafuegos:
+                xlist = [45,132 , 217, 329, 381, 468,560]
+                ylist = [y, y-18]
+                pdf.grid(xlist, ylist)
+                pdf.drawString(48, y-16, str(m.numero))
+                pdf.drawString(135, y-16,str(m.numero_dps))
+                if m.direccion != "NULL":
+                    pdf.drawString(220, y-16,str(m.direccion))
+                pdf.drawString(332, y-16,str(m.tipo))
+                pdf.drawString(383, y-16,str(m.fecha_proxima_carga))
+                pdf.drawString(470, y-16,str(m.fecha_proxima_ph))
+                y = y-18
+                if (y<50):
+                    y = 800
+                    pdf.showPage()
+                    pdf.setFont("Helvetica", 10)
+                    cabeceraTablaMatafuegos(pdf,y)
+                    pdf.setFont("Helvetica", 10)
+                    y = y-18
+        pdf.showPage()
+        pdf.save()
 @admin.action(description="Enviar informe al cliente")
 def send_email(self, request, queryset):
     try:
@@ -170,7 +224,7 @@ def send_email(self, request, queryset):
                      nombre= str(d.nombre)
                 else:
                      return messages.error(request,'El cliente seleccionado no tiene un email especificado')
-        generarInformeCliente(pdf, request,queryset)
+        generarInformeClienteSinOrdenes(pdf, request,queryset)
         mailServer = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
         mailServer.ehlo()
         mailServer.starttls()

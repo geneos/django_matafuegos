@@ -58,8 +58,8 @@ def emitirInformeVehicular(self, request, queryset):
         return messages.error(request,'La cantidad de ordenes de trabajo debe ser multiplo de tres')
     else:
         for d in set:
-            if d.matafuegos.categoria != 'v':
-                return messages.error(request,'Deben ser ordenes de trabajo de matafuegos vehiculares')
+            if d.matafuegos.categoria != 'v' and d.matafuegos.categoria != 'ma':
+                return messages.error(request,'Deben ser ordenes de trabajo de matafuegos vehiculares o de maquinarias agricolas')
         for d in set:
             pdf.drawString(x+3, y, str(d.matafuegos.numero))
             pdf.drawString(x+71, y,str(d.matafuegos.fecha_fabricacion.year))
@@ -187,7 +187,6 @@ def emitirInformeDPSFijo(self, request, queryset):
     y= 775
     x=52
     pdf.setFont("Helvetica", 10)
-   #pdf.drawImage("DPS FIJA 2019.png", 0, 40, width=595, height=800)
     set = queryset.all()
     cant= set.count()
     if set.count() % 3 == 0:
@@ -211,13 +210,14 @@ def emitirInformeDPSFijo(self, request, queryset):
                 pdf.drawString(x+248, y-59,str(d.matafuegos.fecha_proxima_carga.month))
                 pdf.drawString(x+276, y-59,str(d.matafuegos.fecha_proxima_carga.year))
                 y = y-296
+                Matafuegos.objects.filter(id = d.matafuegos.id).update(numero_dps = Parametros.objects.first().dom_actual)
+                Parametros.objects.filter(id = Parametros.objects.first().id).update(dom_actual = Parametros.objects.first().dom_actual+2)
             else:
                 messages.error(request, "Seleccionar solo categoria domiciliaria")
                 return
             if (cant % 3 == 0 and cant !=0):
                     y = 752
                     pdf.showPage()
-                    pdf.drawImage("DPS FIJA 2019.png", 0, 40, width=595, height=800)
                     pdf.setFont("Helvetica", 10)
         pdf.showPage()
         pdf.save()
@@ -231,14 +231,12 @@ def emitirInformeDPSFijo(self, request, queryset):
 class OrdenTrabajoAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'fecha_inicio',
-        'fecha_entrega',
         'cliente',
         'matafuegos',
         'get_categoria',
         'estados',
         'estado',
-        'monto_total'
+        'impresa'
 
     )
 
@@ -249,7 +247,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     get_categoria.short_description = 'Categoria'
     autocomplete_fields = ('cliente',)
     search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
-    list_filter = ('estado', 'matafuegos__categoria',)
+    list_filter = ('estado', 'matafuegos__categoria', 'impresa',)
     inlines = [TareaTabularInline]
     model = Ordenes_de_trabajo
     actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]

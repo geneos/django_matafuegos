@@ -33,7 +33,8 @@ class Ordenes_de_trabajo(models.Model):
     matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE)
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'p')
     monto_total = models.FloatField('Monto', default=0)
-    notas = models.CharField('notas', max_length=80, blank=True)
+    notas = models.CharField('Notas', max_length=80, blank=True)
+    impresa= models.BooleanField('Impresa', default=0)
 
 
     def calcular_monto(self):

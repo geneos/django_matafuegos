@@ -38,16 +38,16 @@ class MarcaMatafuegos(models.Model):
 class Matafuegos(models.Model):
     numero = models.IntegerField('Numero')
     numeroInterno= models.IntegerField('Numero interno',blank=True, null= True)
-    numero_dps = models.IntegerField('Numero de DPS', null=True)
+    numero_dps = models.IntegerField('Numero de DPS', null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
-    patente = models.CharField('Patente', max_length=10, blank=True, null= True)
+    patente = models.CharField('Patente', max_length=19, blank=True, null= True)
     direccion = models.CharField('Direccion', max_length=30, null=True, blank=True)
     localizacion = models.CharField('Localizacion', max_length=60, blank=True, null= True)
     numero_localizacion = models.IntegerField('Numero de localizacion', null=True, blank=True)
     marca = models.ForeignKey(MarcaMatafuegos, on_delete=models.CASCADE, null=True)
     tipo = models.ForeignKey(TipoMatafuegos, on_delete=models.CASCADE)
-    cat = [('v', 'Vehicular'),('d', 'Domiciliario'),]
-    categoria = models.CharField('Categoria', max_length=12, choices=cat)
+    cat = [('v', 'Vehicular'),('d', 'Domiciliario'),('ma', 'Maquinaria Agricola')]
+    categoria = models.CharField('Categoria', max_length=20, choices=cat)
     fecha_fabricacion = models.DateField('Fecha de fabricacion', null=True)
     fecha_carga = models.DateField('Fecha de carga',default=datetime.date.today, null= True)
     fecha_proxima_carga = models.DateField('Fecha de proxima carga',null=True, blank=True)
@@ -59,6 +59,8 @@ class Matafuegos(models.Model):
         return fecha + datetime.timedelta(days=dias)
 
     def save(self, *args, **kwargs):
+        if self.categoria == 'ma':
+            self.patente='Maquina agricola'
         self.fecha_proxima_carga = self.calcularFecha(self.fecha_carga, self.tipo.vencimiento_carga)
         self.fecha_proxima_ph = self.calcularFecha(self.fecha_ph, self.tipo.vencimiento_ph)
         super(Matafuegos, self).save(*args, **kwargs)
@@ -67,6 +69,6 @@ class Matafuegos(models.Model):
         verbose_name_plural = "Matafuegos"
 
     def __str__(self):
-        return str(self.numero)
+        return str(str(self.numero) + "-" + str(self.tipo))
 
 

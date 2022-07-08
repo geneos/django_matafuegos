@@ -18,8 +18,7 @@ class MatafuegosResource(resources.ModelResource):
 class MatafuegosAdmin(ImportExportModelAdmin):
     list_display = (
         'numero',
-        'numeroInterno',
-        'numero_dps',
+        'cliente',
         'fecha_proxima_carga',
         'fecha_proxima_ph',
     )
@@ -27,7 +26,7 @@ class MatafuegosAdmin(ImportExportModelAdmin):
     search_fields= ('cliente__nombre','numero', 'numero_dps',)
     list_filter= ('categoria',)
     actions = ['proximos_vencimientos','alerta_vencimientos']
-    readonly_fields=['fecha_proxima_carga','fecha_proxima_ph']
+    readonly_fields=['fecha_proxima_carga','fecha_proxima_ph', 'numero_dps',]
     resource_class = MatafuegosResource
 
 
