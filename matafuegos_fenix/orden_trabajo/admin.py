@@ -1,8 +1,9 @@
 import os
-from datetime import date
+from datetime import date, timedelta
 from io import BytesIO
 from urllib import request
 
+from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.contrib import admin, messages
@@ -22,7 +23,7 @@ class TareaAdmin(admin.ModelAdmin):
 class TareaTabularInline(admin.TabularInline):
     model = TareaOrden
     can_delete = True
-    fields = ('tarea', 'precioAj')
+    fields = ('tarea', 'cant_cargada')
 
 class TareaFinalizadaTabularInline(admin.TabularInline):
     model = TareaOrden
@@ -35,12 +36,23 @@ class TareaFinalizadaTabularInline(admin.TabularInline):
         return False
 
 #ACCIONES
+
+#Accion para iniciar la orden y pasar de estado pendiente a en proceso. -No usada por ahora porque ya inicia en 'En proceso'
 @admin.action(description='Iniciar orden de trabajo')
 def action_iniciada(modeladmin, request, queryset):
     queryset.update(estado='ep')
     queryset.update(fecha_inicio=date.today())
     queryset.update(fecha_cierre=None)
 
+# Accion para finalizar la ornden y pasar a estado finalizada
+@admin.action(description='Finalizar orden de trabajo')
+def action_finalizada(modeladmin, request, queryset):
+    queryset.update(estado='f')
+    queryset.update(fecha_cierre=date.today())
+
+@admin.action(description='Cancelar orden de trabajo')
+def action_cancelada(modeladmin, request, queryset):
+    queryset.update(estado='c')
 
 @admin.action(description="Oblea DPS vehicular")
 def emitirInformeVehicular(self, request, queryset):
@@ -92,14 +104,64 @@ def emitirInformeVehicular(self, request, queryset):
         return FileResponse(buffer, as_attachment=True, filename='oblea_DPS_vehicular.pdf')
 
 
-@admin.action(description='Finalizar orden de trabajo')
-def action_finalizada(modeladmin, request, queryset):
-    queryset.update(estado='f')
-    queryset.update(fecha_cierre=date.today())
 
-@admin.action(description='Cancelar orden de trabajo')
-def action_cancelada(modeladmin, request, queryset):
-    queryset.update(estado='c')
+
+#Accion para que emita la información de las DPS domiciliarias
+@admin.action(description="Oblea DPS Domiciliaria")
+def emitirInformeDPSFijo(self, request, queryset):
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.setPageSize((6.69291*inch, 12*inch))
+    y= 775
+    x=52
+    pdf.setFont("Helvetica", 10)
+    set = queryset.all()
+    cant= set.count()
+    if set.count() % 3 == 0:
+        for d in set:
+            cant-=1
+            if str(d.matafuegos.categoria) == 'd':
+                d.impresa=1
+                d.save()
+                pdf.drawString(x, y, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
+                pdf.drawString(x+67, y, str(d.matafuegos.fecha_fabricacion.year))# AÑO FABRICACIÓN
+                pdf.drawString(x, y-24, str("SEGURIDAD FENIX SA"))
+                pdf.drawString(x, y-24, str("SEGURIDAD FENIX SA"))
+                pdf.drawString(x+125, y-24, str("120"))
+                pdf.drawString(x+106, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
+                pdf.drawString(x+141, y,str(d.matafuegos.tipo.volumen))#CAPACIDAD
+                pdf.drawString(x+173, y,str(d.matafuegos.tipo)) #AGENTE EXTINTOR
+                # ______________
+                pdf.drawString(x+8, y-59,str(d.matafuegos.fecha_proxima_carga.month)) #Proxima revision recarga mes
+                pdf.drawString(x+36, y-59,str(d.matafuegos.fecha_proxima_carga.year)) #Proxima revision recarga año
+                nombre=str(d.matafuegos.cliente.nombre)#Nombre usuario
+                if len(nombre)>11:
+                    pdf.drawString(x+77, y-54,nombre[0:11])
+                    pdf.drawString(x+77, y-64, nombre[12:])
+                else:
+                    pdf.drawString(x+77, y-54, nombre)
+                #Para exintor
+                pdf.drawString(x+244, y-24, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
+                pdf.drawString(x+302, y-24, str(d.matafuegos.fecha_proxima_ph.month)+ ' ' +str(d.matafuegos.fecha_proxima_ph.year ))#venc PH
+                pdf.drawString(x+248, y-59,str(d.matafuegos.fecha_proxima_carga.month))
+                pdf.drawString(x+276, y-59,str(d.matafuegos.fecha_proxima_carga.year))
+                y = y-296
+                Matafuegos.objects.filter(id = d.matafuegos.id).update(numero_dps = Parametros.objects.first().dom_actual)
+                Parametros.objects.filter(id = Parametros.objects.first().id).update(dom_actual = Parametros.objects.first().dom_actual+2)
+            else:
+                messages.error(request, "Seleccionar solo categoria domiciliaria")
+                return
+            if (cant % 3 == 0 and cant !=0):
+                    y = 752
+                    pdf.showPage()
+                    pdf.setFont("Helvetica", 10)
+        pdf.showPage()
+        pdf.save()
+        buffer.seek(0)
+        messages.success(request, "Informe emitido")
+        return FileResponse(buffer, as_attachment=True, filename='oblea_DPS_domiciliaria.pdf')
+    else:
+        messages.error(request, "Seleccionar multiplos de 3")
 
 #Accion para que emita el informe de toda la informacion y las tareas de la orden seleccionada
 @admin.action(description="Informe Ordenes de trabajo")
@@ -179,55 +241,106 @@ def emitirInformeOrden(self, request, queryset):
     else:
         messages.error(request, "Seleccionar una orden")
 
-#Accion para que emita la información de las DPS domiciliarias
-@admin.action(description="Oblea DPS Domiciliaria")
-def emitirInformeDPSFijo(self, request, queryset):
+#Informe de las ordenes por cliente para la facturacion
+def InformeFacturacion(request, ordenes):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer)
-    pdf.setPageSize((6.69291*inch, 12*inch))
-    y= 775
-    x=52
-    pdf.setFont("Helvetica", 10)
-    set = queryset.all()
-    cant= set.count()
-    if set.count() % 3 == 0:
-        for d in set:
-            cant-=1
-            if str(d.matafuegos.categoria) == 'd':
-                pdf.drawString(x, y, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
-                pdf.drawString(x+67, y, str(d.matafuegos.fecha_fabricacion.year))# AÑO FABRICACIÓN
-                pdf.drawString(x, y-24, str("SEGURIDAD FENIX SA"))
-                pdf.drawString(x, y-24, str("SEGURIDAD FENIX SA"))
-                pdf.drawString(x+125, y-24, str("120"))
-                pdf.drawString(x+106, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
-                pdf.drawString(x+141, y,str(d.matafuegos.tipo.volumen))#CAPACIDAD
-                pdf.drawString(x+173, y,str(d.matafuegos.tipo)) #AGENTE EXTINTOR
-                # ______________
-                pdf.drawString(x+8, y-59,str(d.matafuegos.fecha_proxima_carga.month)) #Proxima revision recarga mes
-                pdf.drawString(x+36, y-59,str(d.matafuegos.fecha_proxima_carga.year)) #Proxima revision recarga año
-                #Para exintor
-                pdf.drawString(x+244, y-24, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
-                pdf.drawString(x+302, y-24, str(d.matafuegos.fecha_proxima_ph.month)+ ' ' +str(d.matafuegos.fecha_proxima_ph.year ))#venc PH
-                pdf.drawString(x+248, y-59,str(d.matafuegos.fecha_proxima_carga.month))
-                pdf.drawString(x+276, y-59,str(d.matafuegos.fecha_proxima_carga.year))
-                y = y-296
-                Matafuegos.objects.filter(id = d.matafuegos.id).update(numero_dps = Parametros.objects.first().dom_actual)
-                Parametros.objects.filter(id = Parametros.objects.first().id).update(dom_actual = Parametros.objects.first().dom_actual+2)
-            else:
-                messages.error(request, "Seleccionar solo categoria domiciliaria")
-                return
-            if (cant % 3 == 0 and cant !=0):
-                    y = 752
-                    pdf.showPage()
-                    pdf.setFont("Helvetica", 10)
-        pdf.showPage()
-        pdf.save()
-        buffer.seek(0)
-        messages.success(request, "Informe emitido")
-        return FileResponse(buffer, as_attachment=True, filename='oblea_DPS_domiciliaria.pdf')
+    settings_dir = os.path.dirname(__file__)
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(settings_dir))
+    img = os.path.join(PROJECT_ROOT, 'seguridad_fenix.png')
+    pdf.drawImage(img, 22,720,550,100)
+    y= 700
+    x=50
+    if ordenes.count()<1:
+            return messages.error(request,'No hay ordenes finalizadas durante la ultima semana')
     else:
-        messages.error(request, "Seleccionar multiplos de 3")
+            pdf.setFont('Helvetica-Bold', 14)
+            today = date.today()
+            pdf.drawString(x, y, 'Informe facturacion ultima semana')
+            y=y-15
+            pdf.drawString(x, y, 'fecha: '+ str(today))
+            pdf.setFont("Helvetica", 10)
+            c = None
+            for d in ordenes:
+                tareas = TareaOrden.objects.filter(orden = d.id)
+                if tareas.count()>0:
+                    if c != d.cliente:
+                        y = y-18
+                        c = d.cliente
+                        xlist = [50, 200, 232, 307, 367, 490, 542]
+                        ylist = [y, y-18]
+                        pdf.grid(xlist, ylist)
+                        pdf.drawString(52, y-16, 'Cliente')
+                        pdf.drawString(202, y-16, 'Orden')
+                        pdf.drawString(234, y-16, 'Matafuego')
+                        pdf.drawString(309, y-16, 'Fecha cierre')
+                        pdf.drawString(369, y-16, 'Tarea')
+                        pdf.drawString(492, y-16, 'Cantidad')
+                        y=y-18
+                    xlist = [50, 200, 232, 307, 367, 490, 542]
+                    ylist = [y, y-18]
+                    pdf.grid(xlist, ylist)
+                    nombre= str(d.cliente)
+                    if len(nombre)>25:
+                        nombre= nombre[0:24]
+                    pdf.drawString(52, y-16, nombre)
+                    pdf.drawString(204, y-16, str(d.id))
+                    matafuegos= str(d.matafuegos)
+                    if len(matafuegos)>12:
+                        matafuegos= matafuegos[0:12]
+                    pdf.drawString(234, y-16, matafuegos)
+                    pdf.drawString(311, y-16, str(d.fecha_cierre.month) + " / "+ str(d.fecha_cierre.day))
+                    t=0
+                    tarea= str(tareas[t].tarea.nombre)
+                    if len(tarea)>25:
+                            tarea= tarea[0:24]
+                    pdf.drawString(369, y-16, tarea )
+                    pdf.drawString(492, y-16, str(tareas[t].cant_cargada))
+                    y = y-18
+                    t=1
+                    while t < tareas.count():
+                        xlist = [50,367, 490, 542]
+                        ylist = [y, y-18]
+                        pdf.grid(xlist, ylist)
+                        tarea= str(tareas[t].tarea.nombre)
+                        if len(tarea)>25:
+                            tarea= tarea[0:24]
+                        pdf.drawString(369, y-16, tarea )
+                        pdf.drawString(492, y-16, str(tareas[t].cant_cargada))
+                        t=t +1
+                        y=y-18
+                        if (y<50):
+                            pdf.showPage()
+                            pdf.setFont("Helvetica", 10)
+                            y = 800
+                            x = 45
+                            e = 15
+                            xlist = [50,367, 490, 542]
+                            ylist = [y, y-18]
+                            pdf.grid(xlist, ylist)
 
+                    print(y)
+                    if (y<10):
+                        pdf.showPage()
+                        pdf.setFont("Helvetica", 10)
+                        y = 800
+                        x = 45
+                        e = 15
+                        xlist = [50, 200, 232, 307, 367, 490, 542]
+                        ylist = [y, y-18]
+                        pdf.grid(xlist, ylist)
+                        pdf.drawString(52, y-16, 'Cliente')
+                        pdf.drawString(202, y-16, 'Orden')
+                        pdf.drawString(234, y-16, 'Matafuego')
+                        pdf.drawString(309, y-16, 'Fecha cierre')
+                        pdf.drawString(369, y-16, 'Tarea')
+                        pdf.drawString(492, y-16, 'Cantidad')
+                        y=y-18
+            pdf.showPage()
+            pdf.save()
+            buffer.seek(0)
+            messages.success(request, "Informe emitido")
+            return FileResponse(buffer, as_attachment=True, filename='informe_facturacion.pdf')
 
 class OrdenTrabajoAdmin(admin.ModelAdmin):
     list_display = (
@@ -251,7 +364,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     list_filter = ('estado', 'matafuegos__categoria', 'impresa',)
     inlines = [TareaTabularInline]
     model = Ordenes_de_trabajo
-    actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
+    actions = [action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular,'Informe_facturacion']
     ordering = ['-fecha_cierre']
     form = OrdenesTrabajoAdminForm
 
@@ -262,6 +375,23 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         else:
             OrdenTrabajoAdmin.inlines = [TareaTabularInline]
             return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','estado']
+
+    """Funcion para que no sea necesario seleccionar una para el informe de facturacion"""
+    def changelist_view(self, request, extra_context=None):
+        if 'action' in request.POST and (request.POST['action'] == 'Informe_facturacion'):
+            if not request.POST.getlist(ACTION_CHECKBOX_NAME):
+                post = request.POST.copy()
+                post.update({ACTION_CHECKBOX_NAME: str(Ordenes_de_trabajo.objects.first().id)})
+                request._set_post(post)
+        return super(OrdenTrabajoAdmin, self).changelist_view(request, extra_context)
+
+    @admin.action(description="Informe Facturacion ultima semana")
+    def Informe_facturacion(self, request, obj):
+        today = date.today()
+        td = timedelta(7)
+        ordenes = Ordenes_de_trabajo.objects.filter(estado= 'f', fecha_cierre__range=(today - td, today)).order_by('cliente')
+        return InformeFacturacion(request,ordenes)
+
 
 class TareaOrdenAdmin(admin.ModelAdmin):
     list_display = (

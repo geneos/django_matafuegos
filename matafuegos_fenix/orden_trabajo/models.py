@@ -26,12 +26,12 @@ estados = [
 class Ordenes_de_trabajo(models.Model):
 
     fecha_creacion = models.DateField("Fecha de creacioin de orden", default=date.today)
-    fecha_inicio = models.DateField("Fecha de inicio", blank=True, null=True)
+    fecha_inicio = models.DateField("Fecha de inicio", blank=True, null=True,default=date.today)
     fecha_entrega= models.DateField("Entrega estimada", default=date.today)
     fecha_cierre= models.DateField("Fecha de cierre", blank=True, null=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     matafuegos = models.ForeignKey(Matafuegos, on_delete=models.CASCADE)
-    estado = models.CharField('Estado', max_length=80, choices=estados, default= 'p')
+    estado = models.CharField('Estado', max_length=80, choices=estados, default= 'ep')
     monto_total = models.FloatField('Monto', default=0)
     notas = models.CharField('Notas', max_length=80, blank=True)
     impresa= models.BooleanField('Impresa', default=0)
@@ -73,6 +73,7 @@ class TareaOrden(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     orden = models.ForeignKey(Ordenes_de_trabajo, on_delete=models.CASCADE)
     precioAj = models.FloatField('precio ajustable', default=0)
+    cant_cargada = models.FloatField('Cantidad Cargada', default=0)
 
     def save(self, *args, **kwargs):
         super(TareaOrden, self).save(*args, **kwargs)
