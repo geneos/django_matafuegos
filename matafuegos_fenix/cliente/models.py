@@ -12,7 +12,7 @@ class Cliente(models.Model):
         ('e', 'Empresa'),
     ]
 
-    codigo = models.IntegerField("Codigo", primary_key=True)
+    codigo = models.IntegerField("Codigo", primary_key=True, default=1)
     cuit_cuil = models.CharField('CUIT/CUIL', max_length=11, null=True)
     nombre = models.CharField('Nombre/ Razón Social', max_length=80)
     contacto= models.CharField('Nombre contacto', max_length=80, null= True, blank=True)
@@ -28,3 +28,8 @@ class Cliente(models.Model):
 
     def __str__(self):
         return str(self.nombre+" - "+str(self.codigo))
+
+    def save(self, *args, **kwargs):
+        self.codigo = int(str(Cliente.objects.raw('SELECT codigo FROM public.cliente_cliente')[-1]).split()[-1])+1
+        super(Cliente, self).save(*args, **kwargs)
+

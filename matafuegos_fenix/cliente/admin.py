@@ -299,6 +299,7 @@ class CLienteAdmin(admin.ModelAdmin):
 
     search_fields= ('codigo', 'nombre', 'cuit_cuil','contacto',)
     list_filter= ('estado', 'tipo',)
+    readonly_fields = ('codigo',)
     actions = [make_inactivo, make_activo, emitirInformeCliente, send_email]
     inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]
     ordering = ['nombre']
