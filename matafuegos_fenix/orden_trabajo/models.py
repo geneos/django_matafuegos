@@ -20,7 +20,7 @@ estados = [
     ('p', 'Pendiente'),
     ('ep', 'En proceso'),
     ('f', 'Finalizada'),
-    ('c', 'cancelada'),
+    ('c', 'Cancelada'),
 ]
 
 class Ordenes_de_trabajo(models.Model):

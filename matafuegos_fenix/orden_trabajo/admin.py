@@ -1,6 +1,7 @@
 import os
 from datetime import date, timedelta
 from io import BytesIO
+from itertools import chain
 from urllib import request
 
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
@@ -344,6 +345,40 @@ def InformeFacturacion(request, ordenes):
             messages.success(request, "Informe emitido")
             return FileResponse(buffer, as_attachment=True, filename='informe_facturacion.pdf')
 
+from datetime import date
+
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+
+class DecadeBornListFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('categoria')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'matafuegos__categoria'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('d', _('Domiciliaria')),
+            ('v', _('Vehicular')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'v':
+            qs= queryset.filter(
+                matafuegos__categoria= 'v',
+            )
+            qs2=queryset.filter(
+                matafuegos__categoria= 'ma',
+            )
+            return qs | qs2
+
+        if self.value() == 'd':
+            return queryset.filter(
+                matafuegos__categoria= 'd'
+            )
+
 class OrdenTrabajoAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -363,7 +398,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     get_categoria.short_description = 'Categoria'
     autocomplete_fields = ('cliente',)
     search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
-    list_filter = ('estado', 'matafuegos__categoria', 'impresa',)
+    list_filter = (DecadeBornListFilter, 'estado', 'impresa')
     inlines = [TareaTabularInline]
     model = Ordenes_de_trabajo
     actions = [action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular,'Informe_facturacion']
