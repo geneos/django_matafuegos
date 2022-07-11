@@ -74,6 +74,8 @@ def emitirInformeVehicular(self, request, queryset):
             if d.matafuegos.categoria != 'v' and d.matafuegos.categoria != 'ma':
                 return messages.error(request,'Deben ser ordenes de trabajo de matafuegos vehiculares o de maquinarias agricolas')
         for d in set:
+            d.impresa=1
+            d.save()
             pdf.drawString(x+3, y, str(d.matafuegos.numero))
             pdf.drawString(x+71, y,str(d.matafuegos.fecha_fabricacion.year))
             pdf.drawString(x+110, y,str(d.matafuegos.fecha_proxima_ph.month)+" "+str(d.matafuegos.fecha_proxima_ph.year))
