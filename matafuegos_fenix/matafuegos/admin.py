@@ -21,10 +21,11 @@ class MatafuegosAdmin(ImportExportModelAdmin):
         'cliente',
         'fecha_proxima_carga',
         'fecha_proxima_ph',
+        'vencido',
     )
     form = ControlPatenteForm
     search_fields= ('cliente__nombre','numero', 'numero_dps',)
-    list_filter= ('categoria',)
+    list_filter= ('categoria','vencido')
     actions = ['proximos_vencimientos','alerta_vencimientos']
     readonly_fields=['fecha_proxima_carga','fecha_proxima_ph', 'numero_dps',]
     resource_class = MatafuegosResource

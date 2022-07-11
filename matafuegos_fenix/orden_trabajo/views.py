@@ -26,7 +26,7 @@ class MatafuegosAutoComplete(autocomplete.Select2QuerySetView):
 
         if cliente is not None:
             # TODO: Unificar filtrado de is_active
-            qs = Matafuegos.objects.filter(cliente=cliente)
+            qs = Matafuegos.objects.filter(cliente=cliente, vencido=False)
         else:
             qs = Matafuegos.objects.none()
         if self.q:

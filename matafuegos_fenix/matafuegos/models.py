@@ -1,4 +1,6 @@
+from datetime import date
 import datetime
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import HttpResponse
@@ -53,7 +55,7 @@ class Matafuegos(models.Model):
     fecha_proxima_carga = models.DateField('Fecha de proxima carga',null=True, blank=True)
     fecha_ph = models.DateField('Fecha de PH',default=datetime.date.today, null=True)
     fecha_proxima_ph = models.DateField('Fecha de proxima PH',null=True, blank=True)
-
+    vencido = models.BooleanField('Vencido', default= False)
 
     def calcularFecha(self, fecha, dias):
         return fecha + datetime.timedelta(days=dias)
@@ -70,5 +72,13 @@ class Matafuegos(models.Model):
 
     def __str__(self):
         return str(str(self.numero) + "-" + str(self.tipo))
+
+    #@background(schedule=60)
+    #def matafuegos_vencidos(self):
+    #    matafuegos = Matafuegos.objects.all()
+    #    for m in matafuegos:
+    #        if (date.today() - m.fecha_fabricacion).days/365 > 20:
+    #            m.vencido = True
+    #            m.save()
 
 

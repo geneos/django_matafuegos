@@ -1,6 +1,7 @@
 import os
 from datetime import date
 from io import BytesIO
+from urllib import request
 
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
@@ -252,7 +253,6 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     model = Ordenes_de_trabajo
     actions = [action_iniciada, action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular]
     ordering = ['-fecha_cierre']
-
     form = OrdenesTrabajoAdminForm
 
     def get_readonly_fields(self, request, obj=None):
