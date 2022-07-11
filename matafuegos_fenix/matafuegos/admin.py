@@ -29,6 +29,7 @@ class MatafuegosAdmin(ImportExportModelAdmin):
     actions = ['proximos_vencimientos','alerta_vencimientos']
     readonly_fields=['fecha_proxima_carga','fecha_proxima_ph', 'numero_dps',]
     resource_class = MatafuegosResource
+    autocomplete_fields = ['cliente']
 
 
     """Funcion para que no sea necesario seleccionar un matafuego para la accion proximos-vencimientos"""

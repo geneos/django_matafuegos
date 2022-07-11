@@ -301,5 +301,6 @@ class CLienteAdmin(admin.ModelAdmin):
     list_filter= ('estado', 'tipo',)
     actions = [make_inactivo, make_activo, emitirInformeCliente, send_email]
     inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]
+    ordering = ['nombre']
 
 admin.site.register(Cliente, CLienteAdmin)
