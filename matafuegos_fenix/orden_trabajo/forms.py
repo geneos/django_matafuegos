@@ -19,7 +19,7 @@ class OrdenesTrabajoAdminForm(forms.ModelForm):
 
     vencido = False
     matafuegos = forms.ModelChoiceField(
-        queryset= Matafuegos.objects.none(),
+        queryset= Matafuegos.objects.all(),
         widget=autocomplete.ModelSelect2(url='matafuegos-autocomplete',
                                         forward=('cliente','vencido')
     ))

@@ -92,7 +92,7 @@ def generarInformeCliente(pdf,request,queryset):
                 pdf.grid(xlist, ylist)
                 pdf.drawString(48, y-16, str(m.numero))
                 pdf.drawString(135, y-16,str(m.numero_dps))
-                if m.direccion != "NULL":
+                if m.direccion is not None:
                     pdf.drawString(220, y-16,str(m.direccion))
                 pdf.drawString(332, y-16,str(m.tipo))
                 pdf.drawString(383, y-16,str(m.fecha_proxima_carga))
@@ -104,7 +104,7 @@ def generarInformeCliente(pdf,request,queryset):
                     pdf.setFont("Helvetica", 10)
                     cabeceraTablaMatafuegos(pdf,y)
                     pdf.setFont("Helvetica", 10)
-                    y = y-18
+                    y = y-22
             pdf.drawString(45, y-25, 'ORDENES DE TRABAJO')
             y= y - 30
             today = date.today()
@@ -197,7 +197,7 @@ def generarInformeClienteSinOrdenes(pdf,request,queryset):
                 pdf.grid(xlist, ylist)
                 pdf.drawString(48, y-16, str(m.numero))
                 pdf.drawString(135, y-16,str(m.numero_dps))
-                if m.direccion != "NULL":
+                if m.direccion is not None:
                     pdf.drawString(220, y-16,str(m.direccion))
                 pdf.drawString(332, y-16,str(m.tipo))
                 pdf.drawString(383, y-16,str(m.fecha_proxima_carga))
@@ -209,7 +209,7 @@ def generarInformeClienteSinOrdenes(pdf,request,queryset):
                     pdf.setFont("Helvetica", 10)
                     cabeceraTablaMatafuegos(pdf,y)
                     pdf.setFont("Helvetica", 10)
-                    y = y-18
+                    y = y-22
         pdf.showPage()
         pdf.save()
 @admin.action(description="Enviar informe al cliente")

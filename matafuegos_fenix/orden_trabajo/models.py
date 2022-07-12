@@ -34,7 +34,7 @@ class Ordenes_de_trabajo(models.Model):
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'ep')
     monto_total = models.FloatField('Monto', default=0)
     notas = models.CharField('Notas', max_length=80, blank=True)
-    impresa= models.BooleanField('Impresa', default=0)
+    impresa= models.BooleanField('Impresa', default=False)
 
 
     def calcular_monto(self):

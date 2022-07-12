@@ -61,7 +61,8 @@ class MatafuegosAdmin(ImportExportModelAdmin):
         y = 680
         x = 45
         e = 15
-        if carga.count()<1 and ph.count()<1:
+
+        if carga.count() < 1 and ph.count() < 1:
             return messages.error(request,'No hay matafuegos con vencimiento en los proximos 30 dias')
         else:
             pdf.setFont('Helvetica-Bold', 14)
@@ -71,14 +72,32 @@ class MatafuegosAdmin(ImportExportModelAdmin):
             c = None
             for d in carga:
                 if c != d.cliente:
+                    if (y<80):
+                        pdf.showPage()
+                        pdf.setFont("Helvetica", 10)
+                        y = 800
+                        x = 45
+                        e = 15
                     y = y-18
                     c = d.cliente
                     pdf.drawString(x, y, 'Nombre/Razón Social: '+str(d.cliente))
-                    y = y-15
-                    pdf.drawString(x, y, 'Telefono: '+str(d.cliente.telefono))
                     y = y-e
-                    pdf.drawString(x, y, 'Email: '+str(d.cliente.email))
+                    if d.cliente.telefono is not None:
+                        pdf.drawString(x, y, 'Telefono: '+str(d.cliente.telefono))
+                    else:
+                        pdf.drawString(x, y, 'Telefono: -')
                     y = y-e
+                    if d.cliente.email is None:
+                        pdf.drawString(x, y, 'Email: -')
+                    else:
+                        pdf.drawString(x, y, 'Email: '+str(d.cliente.email))
+                    y = y-e
+                    if (y<80):
+                        pdf.showPage()
+                        pdf.setFont("Helvetica", 10)
+                        y = 800
+                        x = 45
+                        e = 15
                     xlist = [50, 173, 296, 419, 542]
                     ylist = [y, y-18]
                     pdf.grid(xlist, ylist)
@@ -93,9 +112,10 @@ class MatafuegosAdmin(ImportExportModelAdmin):
                 pdf.drawString(52, y-16, str(d.numero))
                 pdf.drawString(175, y-16, str(d.numero_dps))
                 pdf.drawString(298, y-16, str(d.fecha_proxima_carga))
-                pdf.drawString(421, y-16, str(d.direccion))
+                if d.direccion is not None:
+                    pdf.drawString(421, y-16, str(d.direccion))
                 y = y-18
-                if (y<50):
+                if (y<80):
                     pdf.showPage()
                     pdf.setFont("Helvetica", 10)
                     y = 800
@@ -109,7 +129,7 @@ class MatafuegosAdmin(ImportExportModelAdmin):
                     pdf.drawString(298, y-16, 'Fecha de vencimiento')
                     pdf.drawString(421, y-16, 'Direccion')
                     y=y-18
-            y = y-38
+            y = y-36
             pdf.setFont('Helvetica-Bold', 14)
             pdf.drawString(x, y, 'PH de matafuegos')
             pdf.setFont("Helvetica", 10)
@@ -117,14 +137,32 @@ class MatafuegosAdmin(ImportExportModelAdmin):
             c = None
             for d in carga:
                 if c != d.cliente:
+                    if (y<80):
+                        pdf.showPage()
+                        pdf.setFont("Helvetica", 10)
+                        y = 800
+                        x = 45
+                        e = 15
                     y = y-18
                     c = d.cliente
                     pdf.drawString(x, y, 'Nombre/Razón Social: '+str(d.cliente))
-                    y = y-15
-                    pdf.drawString(x, y, 'Telefono: '+str(d.cliente.telefono))
                     y = y-e
-                    pdf.drawString(x, y, 'Email: '+str(d.cliente.email))
+                    if d.cliente.telefono is not None:
+                        pdf.drawString(x, y, 'Telefono: '+str(d.cliente.telefono))
+                    else:
+                        pdf.drawString(x, y, 'Telefono: -')
                     y = y-e
+                    if d.cliente.email is None:
+                        pdf.drawString(x, y, 'Email: -')
+                    else:
+                        pdf.drawString(x, y, 'Email: '+str(d.cliente.email))
+                    y = y-e
+                    if (y<80):
+                        pdf.showPage()
+                        pdf.setFont("Helvetica", 10)
+                        y = 800
+                        x = 45
+                        e = 15
                     xlist = [50, 173, 296, 419, 542]
                     ylist = [y, y-18]
                     pdf.grid(xlist, ylist)
@@ -138,10 +176,11 @@ class MatafuegosAdmin(ImportExportModelAdmin):
                 pdf.grid(xlist, ylist)
                 pdf.drawString(52, y-16, str(d.numero))
                 pdf.drawString(175, y-16, str(d.numero_dps))
-                pdf.drawString(298, y-16, str(d.fecha_proxima_ph))
-                pdf.drawString(421, y-16, str(d.direccion))
+                pdf.drawString(298, y-16, str(d.fecha_proxima_carga))
+                if d.direccion is not None:
+                    pdf.drawString(421, y-16, str(d.direccion))
                 y = y-18
-                if (y<50):
+                if (y<80):
                     pdf.showPage()
                     pdf.setFont("Helvetica", 10)
                     y = 800
@@ -208,14 +247,14 @@ class MatafuegosAdmin(ImportExportModelAdmin):
                 xlist = [30, 140, 186,293,334,382,445,505, 565]
                 ylist = [y, y-18]
                 pdf.grid(xlist, ylist)
-                if len(d.cliente.nombre)>20:
-                    pdf.drawString(32, y-16, d.cliente.nombre[0:19])
+                if len(d.cliente.nombre)>18:
+                    pdf.drawString(32, y-16, d.cliente.nombre[0:18])
                 else:
                     pdf.drawString(32, y-16, d.cliente.nombre)
                 if d.numero_localizacion:
                     pdf.drawString(142, y-16, str(d.numero_localizacion))
-                if d.localizacion != "NULL":
-                    if len(d.localizacion)>18:
+                if d.localizacion is not None:
+                    if len(str(d.localizacion))>18:
                         pdf.drawString(188, y-16, d.localizacion[0:17])
                     else:
                         pdf.drawString(188, y-16, d.localizacion)

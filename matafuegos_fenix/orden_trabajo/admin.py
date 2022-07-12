@@ -73,7 +73,7 @@ def emitirInformeVehicular(self, request, queryset):
     else:
         for d in set:
             if d.matafuegos.categoria != 'v' and d.matafuegos.categoria != 'ma':
-                return messages.error(request,'Deben ser ordenes de trabajo de matafuegos vehiculares o de maquinarias agricolas')
+                return messages.error(request,'Seleccionar solo categoria vehicular')
         for d in set:
             d.impresa=1
             d.save()
@@ -164,7 +164,7 @@ def emitirInformeDPSFijo(self, request, queryset):
         messages.success(request, "Informe emitido")
         return FileResponse(buffer, as_attachment=True, filename='oblea_DPS_domiciliaria.pdf')
     else:
-        messages.error(request, "Seleccionar multiplos de 3")
+        messages.error(request, "La cantidad de ordenes de trabajo debe ser multiplo de tres")
 
 #Accion para que emita el informe de toda la informacion y las tareas de la orden seleccionada
 @admin.action(description="Informe Ordenes de trabajo")
@@ -264,7 +264,7 @@ def InformeFacturacion(request, ordenes):
             today = date.today()
             pdf.drawString(x, y, 'Informe facturacion ultima semana')
             y=y-15
-            pdf.drawString(x, y, 'fecha: '+ str(today))
+            pdf.drawString(x, y, 'Fecha: '+ str(today))
             pdf.setFont("Helvetica", 10)
             c = None
             for d in ordenes:
@@ -390,8 +390,8 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         'get_categoria',
         'estados',
         'estado',
-        'impresa'
-
+        'impresa',
+        'fecha_creacion'
     )
 
     def get_categoria(self, obj):
@@ -400,7 +400,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         return 'Vehicular'
     get_categoria.short_description = 'Categoria'
     autocomplete_fields = ('cliente',)
-    search_fields = ('id', 'cliente__codigo', 'fecha_creacion','matafuegos__id',)
+    search_fields = ('id', 'cliente__codigo', 'cliente__nombre', 'fecha_creacion','matafuegos__id',)
     list_filter = (DecadeBornListFilter, 'estado', 'impresa')
     inlines = [TareaTabularInline]
     model = Ordenes_de_trabajo
