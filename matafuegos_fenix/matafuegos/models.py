@@ -38,7 +38,7 @@ class MarcaMatafuegos(models.Model):
         verbose_name_plural = "Marca Matafuegos"
 
 class Matafuegos(models.Model):
-    numero = models.IntegerField('Numero', blank=True)
+    numero = models.IntegerField('Numero')
     numeroInterno= models.IntegerField('Numero interno',blank=True, null= True)
     numero_dps = models.IntegerField('Numero de DPS', null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)

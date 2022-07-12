@@ -41,7 +41,7 @@ def cabeceraTablaMatafuegos(pdf,y):
 
 def cabeceraTablaOrdenes(pdf,y):
     pdf.setFont("Helvetica-Bold", 10)
-    xlist = [45,124 , 183,250, 320,387,450, 560]
+    xlist = [45,124 , 183,250, 320,387,510, 560]
     ylist = [y, y-22]
     pdf.grid(xlist, ylist)
     pdf.drawString(47, y-16, 'Numero Orden')
@@ -49,8 +49,8 @@ def cabeceraTablaOrdenes(pdf,y):
     pdf.drawString(185, y-16, 'Fecha inicio')
     pdf.drawString(252, y-16, 'Fecha cierre')
     pdf.drawString(322, y-16, 'Estado')
-    pdf.drawString(389, y-16, 'Monto Total')
-    pdf.drawString(452, y-16, 'Tareas realizadas')
+    pdf.drawString(389, y-16, 'Tareas realizadas')
+    pdf.drawString(512, y-16, 'Cantidad')
 
 def generarInformeCliente(pdf,request,queryset):
     settings_dir = os.path.dirname(__file__)
@@ -114,45 +114,47 @@ def generarInformeCliente(pdf,request,queryset):
             pdf.setFont("Helvetica", 10)
             y = y-22
             for o in ordenes:
-                xlist = [45, 124, 183, 250, 320, 387, 450, 560]
-                ylist = [y, y-18]
-                pdf.grid(xlist, ylist)
-                pdf.drawString(48, y-16, str(o.id))
-                pdf.drawString(126, y-16, str(o.matafuegos))
-                pdf.drawString(185, y-16, str(o.fecha_inicio))
-                if o.fecha_cierre:
-                    pdf.drawString(252, y-16, str(o.fecha_cierre))
-                if str(o.estado) == 'f':
-                    pdf.drawString(322, y-16, "Finalizada")
-                elif str(o.estado) == 'c':
-                    pdf.drawString(322, y-16, " Cancelada")
-                elif str(o.estado) == 'p':
-                    pdf.drawString(322, y-16, " Pendiente")
-                elif str(o.estado) == 'ep':
-                    pdf.drawString(322, y-16, "En proceso")
-                pdf.drawString(389, y-16,str(o.monto_total))
                 tareas= TareaOrden.objects.filter(orden= o.id)
-                for t in tareas:
-                    xlist = [45, 124, 183, 250, 320, 387, 450, 560]
+                if tareas.count()>0:
+                    xlist = [45,124 , 183,250, 320,387,510, 560]
                     ylist = [y, y-18]
                     pdf.grid(xlist, ylist)
-                    nombre= str(t.tarea.nombre)
-                    if len(nombre)>20:
-                        nombre= nombre[0:20]
-                    pdf.drawString(452, y-16, str(nombre))
-                    y=y-18
+                    pdf.drawString(48, y-16, str(o.id))
+                    pdf.drawString(126, y-16, str(o.matafuegos))
+                    pdf.drawString(185, y-16, str(o.fecha_inicio))
+                    if o.fecha_cierre:
+                        pdf.drawString(252, y-16, str(o.fecha_cierre))
+                    if str(o.estado) == 'f':
+                        pdf.drawString(322, y-16, "Finalizada")
+                    elif str(o.estado) == 'c':
+                        pdf.drawString(322, y-16, " Cancelada")
+                    elif str(o.estado) == 'p':
+                        pdf.drawString(322, y-16, " Pendiente")
+                    elif str(o.estado) == 'ep':
+                        pdf.drawString(322, y-16, "En proceso")
+                    for t in tareas:
+                        xlist = [45,124 , 183,250, 320,387,510, 560]
+                        ylist = [y, y-18]
+                        pdf.grid(xlist, ylist)
+                        pdf.drawString(512, y-16,str(t.cant_cargada))
+                        nombre= str(t.tarea.nombre)
+                        if len(nombre)>20:
+                            nombre= nombre[0:20]
+                        pdf.drawString(389, y-16, str(nombre))
+                        y=y-18
+                        if (y<50):
+                            y = 800
+                            pdf.showPage()
+                            cabeceraTablaOrdenes(pdf,y)
+                            pdf.setFont("Helvetica", 10)
+                            y = y-22
+
                     if (y<50):
                         y = 800
                         pdf.showPage()
                         cabeceraTablaOrdenes(pdf,y)
                         pdf.setFont("Helvetica", 10)
                         y = y-22
-                if (y<50):
-                    y = 800
-                    pdf.showPage()
-                    cabeceraTablaOrdenes(pdf,y)
-                    pdf.setFont("Helvetica", 10)
-                    y = y-22
         pdf.showPage()
         pdf.save()
 def generarInformeClienteSinOrdenes(pdf,request,queryset):

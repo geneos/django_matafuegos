@@ -200,42 +200,45 @@ def emitirInformeOrden(self, request, queryset):
         pdf.setFont("Helvetica", 13)
         pdf.drawString(x, y-135, str("TAREAS REALIZADAS"))
         pdf.setFont("Helvetica", 12)
-        xlist = [x, x+400, x+500]
+        xlist = [x, x+380, x+440, x+500]
         ylist =[y-140, y-156]
         pdf.grid(xlist, ylist)
         pdf.setFont("Helvetica-Bold", 12)
         pdf.drawString(x+5, y-154, "Nombre de la tarea")
-        pdf.drawString(x+403, y-154, "Precio")
+        pdf.drawString(x+382, y-154, "Cantidad")
+        pdf.drawString(x+442, y-154, "Precio")
         pdf.setFont("Helvetica", 12)
         y=y-156
         for t in tareas:
-            xlist = [x, x+400, x+500]
+            xlist = [x, x+380, x+440, x+500]
             ylist =[y, y-16]
             nombre= str(t.tarea.nombre)
-            if len(nombre)>75:
-                nombre= nombre[0:75]
+            if len(nombre)>50:
+                nombre= nombre[0:50]
             pdf.drawString(x+3, y-14, str(nombre))
-            pdf.drawString(x+403, y-14, str(t.tarea.precio))
+            pdf.drawString(x+382, y-14, str(t.cant_cargada))
+            pdf.drawString(x+442, y-14, str(t.tarea.precio))
             pdf.grid(xlist, ylist)
             y-=16
             if (y<50):
                 y = 800
                 pdf.showPage()
                 pdf.setFont("Helvetica", 12)
-                xlist = [x, x+400, x+500]
+                xlist = [x, x+380, x+440, x+500]
                 ylist =[y, y-16]
                 pdf.grid(xlist, ylist)
                 pdf.setFont("Helvetica-Bold", 12)
                 pdf.drawString(x+5, y-14, "Nombre de la tarea")
-                pdf.drawString(x+403, y-14, "Precio")
+                pdf.drawString(x+328, y-154, "Cantidad")
+                pdf.drawString(x+442, y-154, "Precio")
                 pdf.setFont("Helvetica", 12)
                 y=y-16
-        xlist = [x, x+400, x+500]
+        xlist = [x, x+380, x+440, x+500]
         ylist =[y, y-16]
         pdf.grid(xlist, ylist)
         pdf.setFont("Helvetica-Bold", 13)
         pdf.drawString(x, y-14, " Monto total: ")
-        pdf.drawString(x+402, y-14,str(d.monto_total))
+        pdf.drawString(x+442, y-14,str(d.monto_total))
         pdf.showPage()
         pdf.save()
         buffer.seek(0)
