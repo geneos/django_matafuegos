@@ -29,14 +29,15 @@ def make_activo(modeladmin, request, queryset):
 
 def cabeceraTablaMatafuegos(pdf,y):
     pdf.setFont("Helvetica-Bold", 10)
-    xlist = [45, 132, 217, 329, 381, 468, 560]
+    xlist = [45, 132, 217, 269, 350, 381, 468, 560]
     ylist = [y, y-22]
     pdf.drawString(47, y-16, 'Numero')
     pdf.drawString(135, y-16, 'Numero de DPS')
-    pdf.drawString(220, y-16, 'Localizacion')
-    pdf.drawString(332, y-16, 'Tipo')
-    pdf.drawString(383, y-16, 'Fecha prox carga')
-    pdf.drawString(470, y-16, 'Fecha prox PH')
+    pdf.drawString(219, y-16, 'Tipo')
+    pdf.drawString(271, y-16, 'Fabricacion')
+    pdf.drawString(352, y-16, ' ')
+    pdf.drawString(383, y-16, 'Proxima Carga')
+    pdf.drawString(470, y-16, 'Proximo PH')
     pdf.grid(xlist, ylist)
 
 def cabeceraTablaOrdenes(pdf,y):
@@ -87,14 +88,17 @@ def generarInformeCliente(pdf,request,queryset):
             pdf.setFont("Helvetica", 10)
             y = y-22
             for m in matafuegos:
-                xlist = [45,132 , 217, 329, 381, 468,560]
+                xlist = [45, 132, 217, 269, 350, 381, 468, 560]
                 ylist = [y, y-18]
                 pdf.grid(xlist, ylist)
                 pdf.drawString(48, y-16, str(m.numero))
                 pdf.drawString(135, y-16,str(m.numero_dps))
-                if m.direccion is not None:
-                    pdf.drawString(220, y-16,str(m.direccion))
-                pdf.drawString(332, y-16,str(m.tipo))
+                pdf.drawString(219, y-16,str(m.tipo))
+                pdf.drawString(271, y-16,str(m.fecha_fabricacion))
+                if m.vencido:
+                    pdf.drawString(352, y-16, "Si")
+                else:
+                     pdf.drawString(352, y-16, "No")
                 pdf.drawString(383, y-16,str(m.fecha_proxima_carga))
                 pdf.drawString(470, y-16,str(m.fecha_proxima_ph))
                 y = y-18
@@ -192,14 +196,17 @@ def generarInformeClienteSinOrdenes(pdf,request,queryset):
             pdf.setFont("Helvetica", 10)
             y = y-22
             for m in matafuegos:
-                xlist = [45,132 , 217, 329, 381, 468,560]
+                xlist = [45, 132, 217, 269, 350, 381, 468, 560]
                 ylist = [y, y-18]
                 pdf.grid(xlist, ylist)
                 pdf.drawString(48, y-16, str(m.numero))
                 pdf.drawString(135, y-16,str(m.numero_dps))
-                if m.direccion is not None:
-                    pdf.drawString(220, y-16,str(m.direccion))
-                pdf.drawString(332, y-16,str(m.tipo))
+                pdf.drawString(219, y-16,str(m.tipo))
+                pdf.drawString(271, y-16,str(m.fecha_fabricacion))
+                if m.vencido:
+                    pdf.drawString(352, y-16, "Si")
+                else:
+                     pdf.drawString(352, y-16, "No")
                 pdf.drawString(383, y-16,str(m.fecha_proxima_carga))
                 pdf.drawString(470, y-16,str(m.fecha_proxima_ph))
                 y = y-18
@@ -258,8 +265,15 @@ def send_email(self, request, queryset):
         mensaje['Subject'] = "Informe Seguridad Fenix"
         mailServer.sendmail(email, mail_to, mensaje.as_string())
         messages.success(request, "Email enviado correctamente")
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer)
+        generarInformeClienteSinOrdenes(pdf, request,queryset)
+        buffer.seek(0)
+        messages.success(request, "Informe emitido")
+        return FileResponse(buffer, as_attachment=True, filename='Informe cliente.pdf')
     except Exception as e:
         print("Error en el envio del email")
+
 
 #Emite el informe con la informacion de un cliente, los matafuegos que tiene asociado y las tareas.
 @admin.action(description="Informe del cliente")
@@ -284,7 +298,7 @@ class OrdenTrabajoTabularInline(admin.TabularInline):
 class MatafuegoTabularInline(admin.TabularInline):
     model = Matafuegos
     can_delete = False
-    fields = ('numero', 'numero_dps', 'direccion', 'categoria', 'tipo',)
+    fields = ('numero', 'numero_dps', 'direccion', 'categoria', 'tipo', 'fecha_fabricacion', 'vencido')
     ordering = ('numero_dps',)
     def has_change_permission(self, request, obj=None):
         return False

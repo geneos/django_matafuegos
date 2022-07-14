@@ -73,12 +73,5 @@ class Matafuegos(models.Model):
     def __str__(self):
         return str(str(self.numero) + "-" + str(self.tipo))
 
-    #@background(schedule=60)
-    #def matafuegos_vencidos(self):
-    #    matafuegos = Matafuegos.objects.all()
-    #    for m in matafuegos:
-    #        if (date.today() - m.fecha_fabricacion).days/365 > 20:
-    #            m.vencido = True
-    #            m.save()
 
 

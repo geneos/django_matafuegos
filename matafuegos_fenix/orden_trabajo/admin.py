@@ -55,6 +55,11 @@ def action_finalizada(modeladmin, request, queryset):
 def action_cancelada(modeladmin, request, queryset):
     queryset.update(estado='c')
 
+
+@admin.action(description='Facturada')
+def action_facturada(modeladmin, request, queryset):
+    queryset.update(estado='fac')
+
 @admin.action(description="Oblea DPS vehicular")
 def emitirInformeVehicular(self, request, queryset):
     # Create file to recieve data and create the PDF
@@ -75,7 +80,10 @@ def emitirInformeVehicular(self, request, queryset):
             if d.matafuegos.categoria != 'v' and d.matafuegos.categoria != 'ma':
                 return messages.error(request,'Seleccionar solo categoria vehicular')
         for d in set:
-            d.impresa=1
+            if d.estado != 'f' and d.estado != 'i':
+                return messages.error(request,'Orden no finalizada')
+        for d in set:
+            d.estado='i'
             d.save()
             pdf.drawString(x+3, y, str(d.matafuegos.numero))
             pdf.drawString(x+71, y,str(d.matafuegos.fecha_fabricacion.year))
@@ -122,9 +130,12 @@ def emitirInformeDPSFijo(self, request, queryset):
     cant= set.count()
     if set.count() % 3 == 0:
         for d in set:
+            if d.estado != 'f' and d.estado != 'i':
+                return messages.error(request,'Orden no finalizada')
+        for d in set:
             cant-=1
             if str(d.matafuegos.categoria) == 'd':
-                d.impresa=1
+                d.estado='i'
                 d.save()
                 pdf.drawString(x, y, str(d.matafuegos.numero))#NUMERO DE MATAFUEGO
                 pdf.drawString(x+67, y, str(d.matafuegos.fecha_fabricacion.year))# AÑO FABRICACIÓN
@@ -324,8 +335,6 @@ def InformeFacturacion(request, ordenes):
                             xlist = [50,367, 490, 542]
                             ylist = [y, y-18]
                             pdf.grid(xlist, ylist)
-
-                    print(y)
                     if (y<10):
                         pdf.showPage()
                         pdf.setFont("Helvetica", 10)
@@ -388,9 +397,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
         'cliente',
         'matafuegos',
         'get_categoria',
-        'estados',
         'estado',
-        'impresa',
         'fecha_creacion'
     )
 
@@ -401,12 +408,16 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     get_categoria.short_description = 'Categoria'
     autocomplete_fields = ('cliente',)
     search_fields = ('id', 'cliente__codigo', 'cliente__nombre', 'fecha_creacion','matafuegos__id',)
-    list_filter = (DecadeBornListFilter, 'estado', 'impresa')
+    list_filter = (DecadeBornListFilter, 'estado',)
     inlines = [TareaTabularInline]
     model = Ordenes_de_trabajo
-    actions = [action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular,'Informe_facturacion']
+    actions = [action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular,'Informe_facturacion', action_facturada]
     ordering = ['-fecha_cierre']
     form = OrdenesTrabajoAdminForm
+
+    def save_model(self, request, obj, form, change):
+        obj.usuario=request.user.username
+        super().save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None):
         if obj is not None and (obj.estado == 'f' or obj.estado == 'c'):
@@ -414,7 +425,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
             return ['id', 'fecha_inicio', 'fecha_entrega', 'fecha_creacion','fecha_cierre','notas', 'estado', 'monto_total', 'matafuegos','cliente']
         else:
             OrdenTrabajoAdmin.inlines = [TareaTabularInline]
-            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','estado']
+            return ['fecha_creacion', 'fecha_inicio','fecha_cierre','monto_total','estado', 'usuario']
 
     """Funcion para que no sea necesario seleccionar una para el informe de facturacion"""
     def changelist_view(self, request, extra_context=None):
@@ -429,7 +440,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     def Informe_facturacion(self, request, obj):
         today = date.today()
         td = timedelta(7)
-        ordenes = Ordenes_de_trabajo.objects.filter(estado= 'f', fecha_cierre__range=(today - td, today)).order_by('cliente')
+        ordenes = Ordenes_de_trabajo.objects.filter(estado= 'i', fecha_cierre__range=(today - td, today)).order_by('cliente')
         return InformeFacturacion(request,ordenes)
 
 

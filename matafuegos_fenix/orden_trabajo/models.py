@@ -4,6 +4,8 @@ from django.db import models
 from django.urls import reverse
 from cliente.models import Cliente
 from matafuegos.models import Matafuegos
+from urllib3.util import request
+
 
 class Tarea(models.Model):
     nombre = models.CharField('Nombre', max_length=120)
@@ -20,6 +22,8 @@ estados = [
     ('p', 'Pendiente'),
     ('ep', 'En proceso'),
     ('f', 'Finalizada'),
+    ('i', 'Impresa'),
+    ('fac', 'Facturada' ),
     ('c', 'Cancelada'),
 ]
 
@@ -34,7 +38,7 @@ class Ordenes_de_trabajo(models.Model):
     estado = models.CharField('Estado', max_length=80, choices=estados, default= 'ep')
     monto_total = models.FloatField('Monto', default=0)
     notas = models.CharField('Notas', max_length=80, blank=True)
-    impresa= models.BooleanField('Impresa', default=False)
+    usuario= models.CharField('Usuario respondable', max_length=30, default='')
 
 
     def calcular_monto(self):
@@ -48,16 +52,17 @@ class Ordenes_de_trabajo(models.Model):
             i+=1
         return monto
 
-
+    """
     @admin.display(boolean=True)
     def estados(self):
         if self.estado in ['f', 'c']:
             return False
         return True
+    """
+
 
     def save(self, *args, **kwargs ):
         self.monto_total = self.calcular_monto()
-        #self.cliente = self.matafuegos.cliente
         super(Ordenes_de_trabajo,self).save(*args, **kwargs)
 
     def get_absolute_url(self):
