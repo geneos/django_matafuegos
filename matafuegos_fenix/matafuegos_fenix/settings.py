@@ -40,6 +40,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_crontab',
     "admin_interface",
     "colorfield",
     'django.contrib.admin',
@@ -55,7 +56,7 @@ INSTALLED_APPS = [
     'orden_trabajo',
     'parametros',
     'import_export',
-    "django_crontab",
+
 ]
 
 X_FRAME_OPTIONS='SAMEORIGIN'
@@ -153,6 +154,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT= 587
 
+
+
 CRONJOBS = [
-    ('0 0 * * *', 'matafuegos.cron.matafuegos_vencidos')
+    ('0 0 * * *','matafuegos.cron.matafuegos_vencidos'),
 ]
+
