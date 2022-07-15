@@ -319,5 +319,6 @@ class CLienteAdmin(admin.ModelAdmin):
     actions = [make_inactivo, make_activo, emitirInformeCliente, send_email]
     inlines = [OrdenTrabajoTabularInline, MatafuegoTabularInline]
     ordering = ['nombre']
+    list_per_page = 50
 
 admin.site.register(Cliente, CLienteAdmin)

@@ -414,6 +414,7 @@ class OrdenTrabajoAdmin(admin.ModelAdmin):
     actions = [action_finalizada,emitirInformeDPSFijo, emitirInformeOrden,emitirInformeVehicular,'Informe_facturacion', action_facturada]
     ordering = ['-fecha_cierre']
     form = OrdenesTrabajoAdminForm
+    list_per_page = 10
 
     def save_model(self, request, obj, form, change):
         obj.usuario=request.user.username

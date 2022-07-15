@@ -30,7 +30,7 @@ class MatafuegosAdmin(ImportExportModelAdmin):
     readonly_fields=['fecha_proxima_carga','fecha_proxima_ph', 'numero_dps',]
     resource_class = MatafuegosResource
     autocomplete_fields = ['cliente']
-
+    list_per_page = 12
 
     """Funcion para que no sea necesario seleccionar un matafuego para la accion proximos-vencimientos"""
     def changelist_view(self, request, extra_context=None):
